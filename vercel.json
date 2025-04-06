@@ -1,7 +1,12 @@
 {
+  "name": "adtech-toolbox",
+  "version": 2,
   "buildCommand": "cd json-explorer && npm install && npm run build",
   "outputDirectory": "json-explorer/dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/json-explorer/dist/index.html" }
-  ]
+  "routes": [
+    { "src": "/(.*)", "dest": "/json-explorer/dist/index.html" }
+  ],
+  "github": {
+    "silent": false
+  }
 } 
