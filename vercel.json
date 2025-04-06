@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd json-explorer && npm install && npm run build",
+  "outputDirectory": "json-explorer/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/json-explorer/dist/index.html" }
+  ]
+} 
