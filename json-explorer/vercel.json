@@ -4,8 +4,14 @@
     { "source": "/json-explorer/test-redirect", "destination": "/test-redirect.html" },
     { "source": "/production-test", "destination": "/production-test.html" },
     { "source": "/production-test.html", "destination": "/production-test.html" },
+    { "source": "/", "destination": "/index.html" },
     { "source": "/json-explorer", "destination": "/index.html" },
     { "source": "/json-explorer/:path*", "destination": "/index.html" }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/production-test", "dest": "/production-test.html" },
+    { "src": "/(.*)", "status": 404, "dest": "/index.html" }
   ],
   "headers": [
     {
