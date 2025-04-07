@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import ThemeToggle from './common/ThemeToggle';
 import TabNavigation from './common/TabNavigation';
 import JsonVastExplorer from './JsonVastExplorer/JsonVastExplorer';
 import JsonDiffInspector from './JsonDiffInspector/JsonDiffInspector';
@@ -50,6 +51,8 @@ function JsonToolsApp() {
             </svg>
             {showHistory ? 'Hide' : 'Show'} History ({history.length})
           </button>
+          
+          <ThemeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
         </div>
       </div>
       

@@ -63,15 +63,15 @@ const MainLayout = () => {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="max-w-screen-2xl mx-auto relative">
-        {/* Simple header - only show STAGING badge and theme toggle */}
+        {/* Simple header - only show STAGING badge */}
         <header className={`py-4 px-6 text-right`}>
           <div className="flex justify-end items-center">
             {window.location.hostname.includes('staging') && (
-              <div className="bg-yellow-500 text-black px-3 py-1 rounded-md font-bold mr-4">
+              <div className="bg-yellow-500 text-black px-3 py-1 rounded-md font-bold">
                 STAGING
               </div>
             )}
-            <ThemeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+            {/* Dark mode toggle removed from here - will be in JsonToolsApp */}
           </div>
         </header>
         
@@ -93,6 +93,18 @@ const MainLayout = () => {
           {/* Main Content */}
           <div className="flex-1 p-6">
             <Outlet context={{ isDarkMode, toggleDarkMode }} />
+            
+            {/* Bottom Ad Banner - positioned inside content div after the main content */}
+            {showAds && (
+              <div className="w-full mt-8">
+                <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
+                  {/* Ad will be loaded here */}
+                  <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
+                    <span className="text-gray-400 text-sm text-center">Ad Space</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           
           {/* Right Ad Banner */}
@@ -109,18 +121,6 @@ const MainLayout = () => {
             </div>
           )}
         </div>
-        
-        {/* Bottom Ad Banner - outside content div, aligned with bottom of side banners */}
-        {showAds && (
-          <div className="w-full py-6 px-4">
-            <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
-              {/* Ad will be loaded here */}
-              <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
-                <span className="text-gray-400 text-sm text-center">Ad Space</span>
-              </div>
-            </div>
-          </div>
-        )}
         
         <footer className={`py-4 px-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <div className="flex flex-col md:flex-row justify-between items-center">
