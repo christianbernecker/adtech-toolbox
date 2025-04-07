@@ -2,12 +2,18 @@ name: Deploy to Vercel
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main, staging ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Vercel Deploy Hook
-        run: curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_9e7V9z3WQEBrtxnvshmn7RUGDXb1/YkrI2XpONw" 
+      - name: Deploy to Production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_9e7V9z3WQEBrtxnvshmn7RUGDXb1/YkrI2XpONw"
+      
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          curl -X POST "https://api.vercel.com/v1/integrations/deploy/prj_irAN9VEpgUuqGTitJCx9yBshZtEq/KgOBMTbLTq" 
