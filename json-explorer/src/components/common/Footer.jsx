@@ -2,33 +2,45 @@ import React from 'react';
 
 const Footer = ({ isDarkMode }) => {
   return (
-    <footer className={`mt-16 py-6 border-t ${
-      isDarkMode ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-600'
-    }`}>
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm">
-          <div className="mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} AdTech Toolbox. Alle Rechte vorbehalten.
-          </div>
-          <div className="flex space-x-6">
-            <a 
-              href="/legal/imprint.html" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className={`hover:${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
-            >
-              Impressum
-            </a>
-            <a 
-              href="/legal/privacy.html" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className={`hover:${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}
-            >
-              Datenschutz
-            </a>
-          </div>
-        </div>
+    <footer style={{
+      marginTop: '40px',
+      padding: '20px',
+      borderTop: `1px solid ${isDarkMode ? '#444' : '#eee'}`,
+      textAlign: 'center',
+      fontSize: '0.9rem',
+      color: isDarkMode ? '#aaa' : '#666'
+    }}>
+      <div style={{ marginBottom: '10px' }}>
+        <a 
+          href="/legal/imprint.html" 
+          style={{
+            color: isDarkMode ? '#aaa' : '#666',
+            marginRight: '20px',
+            textDecoration: 'none',
+            ':hover': {
+              textDecoration: 'underline',
+              color: isDarkMode ? '#fff' : '#333'
+            }
+          }}
+        >
+          Imprint
+        </a>
+        <a 
+          href="/legal/privacy.html" 
+          style={{
+            color: isDarkMode ? '#aaa' : '#666',
+            textDecoration: 'none',
+            ':hover': {
+              textDecoration: 'underline',
+              color: isDarkMode ? '#fff' : '#333'
+            }
+          }}
+        >
+          Privacy Policy
+        </a>
+      </div>
+      <div>
+        &copy; {new Date().getFullYear()} AdTech Toolbox
       </div>
     </footer>
   );
