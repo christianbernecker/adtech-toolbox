@@ -5,43 +5,39 @@ import '../../styles/MainLayout.css';
 
 // Test-Anzeigen Komponenten
 const TestAdLeft = () => (
-  <div style={{ width: '160px', height: '600px', background: 'linear-gradient(135deg, #4285f4, #34a853)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: 'Arial' }}>
-    <div>
-      <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px' }}>TEST AD - LEFT</div>
-      <div style={{ fontSize: '12px' }}>160x600</div>
-      <div style={{ marginTop: '20px', fontSize: '10px' }}>/6355419/Travel/Europe/France/Paris</div>
-    </div>
+  <div className="mx-auto" style={{ width: '160px', height: '600px', background: 'linear-gradient(135deg, #4285f4, #34a853)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', textAlign: 'center' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>TEST AD - LEFT</div>
+    <div style={{ fontSize: '12px' }}>160x600</div>
+    <div style={{ fontSize: '10px', position: 'absolute', bottom: '10px' }}>/6355419/Travel/Europe/France/Paris</div>
   </div>
 );
 
 const TestAdRight = () => (
-  <div style={{ width: '300px', height: '600px', background: 'linear-gradient(135deg, #ea4335, #fbbc05)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: 'Arial' }}>
-    <div>
-      <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>TEST AD - RIGHT</div>
-      <div style={{ fontSize: '12px' }}>300x600</div>
-      <div style={{ marginTop: '20px', fontSize: '10px' }}>/6355419/Travel/Europe/France/Paris</div>
-    </div>
+  <div className="mx-auto" style={{ width: '300px', height: '600px', background: 'linear-gradient(135deg, #ea4335, #fbbc05)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', textAlign: 'center' }}>
+    <div style={{ fontWeight: 'bold', marginBottom: '10px' }}>TEST AD - RIGHT</div>
+    <div style={{ fontSize: '12px' }}>300x600</div>
+    <div style={{ fontSize: '10px', position: 'absolute', bottom: '10px' }}>/6355419/Travel/Europe/France/Paris</div>
   </div>
 );
 
 const TestAdBottom = () => (
-  <div style={{ width: '728px', maxWidth: '100%', height: '90px', background: 'linear-gradient(90deg, #fbbc05, #ea4335)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: 'Arial' }}>
-    <div>
-      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>TEST AD - BOTTOM</div>
-      <div style={{ fontSize: '10px', marginTop: '5px' }}>728x90</div>
-      <div style={{ fontSize: '9px', marginTop: '5px' }}>/6355419/Travel/Europe/France/Paris</div>
-    </div>
+  <div className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px', background: 'linear-gradient(90deg, #fbbc05, #ea4335)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', textAlign: 'center' }}>
+    <div style={{ fontWeight: 'bold' }}>TEST AD - BOTTOM</div>
+    <div style={{ fontSize: '10px' }}>728x90</div>
+    <div style={{ fontSize: '9px', position: 'absolute', bottom: '5px' }}>/6355419/Travel/Europe/France/Paris</div>
   </div>
 );
 
-const MainLayout = () => {
+const MainLayout = ({ forceTestMode }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('darkMode');
     return savedTheme ? JSON.parse(savedTheme) : false;
   });
 
   const [showAds, setShowAds] = useState(true);
-  const [isStaging, setIsStaging] = useState(false);
+
+  // Bestimme, ob wir Test-Anzeigen anzeigen sollen (Staging oder forceTestMode)
+  const isStaging = window.location.hostname.includes('staging') || window.location.hostname === 'localhost' || forceTestMode;
 
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
@@ -49,17 +45,13 @@ const MainLayout = () => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
-  // Check for no_ads parameter in URL and set staging flag
+  // Check for no_ads parameter in URL
   useEffect(() => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('no_ads')) {
         setShowAds(false);
       }
-      
-      // Prüfe, ob wir uns auf Staging befinden
-      const hostname = window.location.hostname;
-      setIsStaging(hostname.includes('staging') || hostname === 'localhost');
     } catch (error) {
       console.error('Error checking URL parameters:', error);
     }
@@ -77,9 +69,9 @@ const MainLayout = () => {
         {/* Simple header - only show STAGING badge */}
         <header className={`py-4 px-6 text-right`}>
           <div className="flex justify-end items-center">
-            {isStaging && (
+            {(window.location.hostname.includes('staging') || forceTestMode) && (
               <div className="bg-yellow-500 text-black px-3 py-1 rounded-md font-bold">
-                STAGING
+                {forceTestMode ? 'TEST MODE' : 'STAGING'}
               </div>
             )}
             {/* Dark mode toggle removed from here - will be in JsonToolsApp */}
@@ -110,9 +102,7 @@ const MainLayout = () => {
             {showAds && (
               <div className="w-full" style={{ marginTop: '200px' }}>
                 {isStaging ? (
-                  <div className="mx-auto" style={{ width: '728px', maxWidth: '100%' }}>
-                    <TestAdBottom />
-                  </div>
+                  <TestAdBottom />
                 ) : (
                   <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
                     {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
