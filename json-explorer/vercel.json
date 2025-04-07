@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    { "source": "/json-explorer", "destination": "/index.html" },
+    { "source": "/json-explorer/test", "destination": "/index.html" },
+    { "source": "/json-explorer/test/:path*", "destination": "/index.html" },
+    { "source": "/json-explorer/:path*", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "s-maxage=1, stale-while-revalidate" }
+      ]
+    }
+  ]
+} 
