@@ -28,7 +28,7 @@ function JsonToolsApp() {
         </div>
       )}
       
-      <div className={`p-6 w-full max-w-6xl mx-auto ${window.location.hostname.includes('staging') ? 'mt-10' : ''}`}>
+      <div className={`p-6 w-full max-w-[1440px] mx-auto ${window.location.hostname.includes('staging') ? 'mt-10' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
