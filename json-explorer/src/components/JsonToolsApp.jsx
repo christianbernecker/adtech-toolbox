@@ -28,11 +28,6 @@ function JsonToolsApp() {
         </div>
       )}
       
-      {/* Top Ad Banner */}
-      <div className="w-full max-w-6xl mx-auto mt-4">
-        <AdComponent adUnitId="div-gpt-ad-top-banner" />
-      </div>
-      
       <div className={`p-6 w-full max-w-6xl mx-auto ${window.location.hostname.includes('staging') ? 'mt-10' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
