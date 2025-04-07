@@ -9,9 +9,7 @@
   "github": {
     "silent": false,
     "enabled": true,
-    "autoAlias": true
-  },
-  "git": {
+    "autoAlias": true,
     "deploymentEnabled": {
       "staging": true,
       "main": false

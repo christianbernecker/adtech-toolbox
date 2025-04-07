@@ -9,7 +9,11 @@
   "github": {
     "silent": false,
     "enabled": true,
-    "autoAlias": true
+    "autoAlias": true,
+    "deploymentEnabled": {
+      "main": true,
+      "staging": false
+    }
   },
   "git": {
     "deploymentEnabled": {
