@@ -31,9 +31,9 @@ function JsonToolsApp() {
             </h1>
             {/* Debug output */}
             <div className="text-xs text-gray-500">
-              ENV: {import.meta.env.VITE_ENVIRONMENT || 'not set'}
+              ENV: {__ENVIRONMENT__ || 'not set'}
             </div>
-            {import.meta.env.VITE_ENVIRONMENT === 'staging' && (
+            {__ENVIRONMENT__ === 'staging' && (
               <span className="ml-2 px-3 py-1 text-sm font-bold rounded-lg bg-amber-500 text-amber-950 animate-pulse">
                 STAGING
               </span>

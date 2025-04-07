@@ -6,6 +6,6 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   base: '/',
   define: {
-    'import.meta.env.VITE_ENVIRONMENT': JSON.stringify(mode)
+    __ENVIRONMENT__: JSON.stringify(mode)
   }
 }))
