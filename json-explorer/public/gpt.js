@@ -316,32 +316,99 @@ if (noAds) {
   window.addEventListener('load', function() {
     setTimeout(function() {
       const adContainers = document.querySelectorAll('[id^="div-gpt-ad-"]');
+      const isStaging = window.location.hostname.includes('staging') || window.location.hostname === 'localhost';
       
-      adContainers.forEach(function(container) {
-        // Check if the ad container is empty after a delay
-        if (container.innerHTML.trim() === '' || 
-            container.querySelector('iframe') === null) {
+      // In Staging keine Ad-Blocker-Erkennung, stattdessen direkte Test-Anzeigen
+      if (isStaging) {
+        console.log('Staging-Umgebung: Zeige direkte Test-Anzeigen ohne Ad-Blocker-Erkennung');
+        
+        adContainers.forEach(function(container) {
+          // Erstelle Test-Anzeige direkt im DOM
+          const testAd = document.createElement('iframe');
+          testAd.style.width = '100%';
+          testAd.style.height = '100%';
+          testAd.style.border = 'none';
+          testAd.style.overflow = 'hidden';
           
-          // Replace with a message for users with ad blockers
-          const placeholder = document.createElement('div');
-          placeholder.style.width = '100%';
-          placeholder.style.height = '100%';
-          placeholder.style.display = 'flex';
-          placeholder.style.alignItems = 'center';
-          placeholder.style.justifyContent = 'center';
-          placeholder.style.textAlign = 'center';
-          placeholder.style.backgroundColor = '#f9f9f9';
-          placeholder.style.border = '1px dashed #ccc';
-          placeholder.style.padding = '20px';
-          placeholder.style.boxSizing = 'border-box';
-          placeholder.style.fontSize = '14px';
-          placeholder.style.color = '#666';
+          // Bestimme die Ad-Größe basierend auf Container-ID
+          let adContent = '';
+          if (container.id === 'div-gpt-ad-left') {
+            adContent = `
+              <html><body style="margin:0; padding:0; background:#f0f0f0;">
+                <div style="width:160px; height:600px; background:linear-gradient(135deg, #4285f4, #34a853); color:white; display:flex; align-items:center; justify-content:center; text-align:center; font-family:Arial;">
+                  <div>
+                    <div style="font-size:14px; font-weight:bold; margin-bottom:10px;">TEST AD - LEFT</div>
+                    <div style="font-size:12px;">160x600</div>
+                    <div style="margin-top:20px; font-size:10px;">/6355419/Travel/Europe/France/Paris</div>
+                  </div>
+                </div>
+              </body></html>
+            `;
+          } else if (container.id === 'div-gpt-ad-right') {
+            adContent = `
+              <html><body style="margin:0; padding:0; background:#f0f0f0;">
+                <div style="width:300px; height:600px; background:linear-gradient(135deg, #ea4335, #fbbc05); color:white; display:flex; align-items:center; justify-content:center; text-align:center; font-family:Arial;">
+                  <div>
+                    <div style="font-size:16px; font-weight:bold; margin-bottom:10px;">TEST AD - RIGHT</div>
+                    <div style="font-size:12px;">300x600</div>
+                    <div style="margin-top:20px; font-size:10px;">/6355419/Travel/Europe/France/Paris</div>
+                  </div>
+                </div>
+              </body></html>
+            `;
+          } else if (container.id === 'div-gpt-ad-bottom') {
+            adContent = `
+              <html><body style="margin:0; padding:0; background:#f0f0f0;">
+                <div style="width:728px; height:90px; background:linear-gradient(90deg, #fbbc05, #ea4335); color:white; display:flex; align-items:center; justify-content:center; text-align:center; font-family:Arial;">
+                  <div>
+                    <div style="font-size:14px; font-weight:bold;">TEST AD - BOTTOM</div>
+                    <div style="font-size:10px; margin-top:5px;">728x90</div>
+                    <div style="font-size:9px; margin-top:5px;">/6355419/Travel/Europe/France/Paris</div>
+                  </div>
+                </div>
+              </body></html>
+            `;
+          }
           
-          placeholder.innerHTML = 'This tool is supported by ads.<br>Please consider disabling your ad blocker.';
+          // Lösche alle vorhandenen Inhalte
+          container.innerHTML = '';
+          container.appendChild(testAd);
           
-          container.appendChild(placeholder);
-        }
-      });
-    }, 3000);
+          // Setze den Inhalt des iframes
+          testAd.contentWindow.document.open();
+          testAd.contentWindow.document.write(adContent);
+          testAd.contentWindow.document.close();
+          
+          console.log(`Test-Anzeige für ${container.id} wurde direkt erstellt`);
+        });
+      } else {
+        // Original Ad-Blocker-Erkennung nur für Produktion
+        adContainers.forEach(function(container) {
+          // Check if the ad container is empty after a delay
+          if (container.innerHTML.trim() === '' || 
+              container.querySelector('iframe') === null) {
+            
+            // Replace with a message for users with ad blockers
+            const placeholder = document.createElement('div');
+            placeholder.style.width = '100%';
+            placeholder.style.height = '100%';
+            placeholder.style.display = 'flex';
+            placeholder.style.alignItems = 'center';
+            placeholder.style.justifyContent = 'center';
+            placeholder.style.textAlign = 'center';
+            placeholder.style.backgroundColor = '#f9f9f9';
+            placeholder.style.border = '1px dashed #ccc';
+            placeholder.style.padding = '20px';
+            placeholder.style.boxSizing = 'border-box';
+            placeholder.style.fontSize = '14px';
+            placeholder.style.color = '#666';
+            
+            placeholder.innerHTML = 'This tool is supported by ads.<br>Please consider disabling your ad blocker.';
+            
+            container.appendChild(placeholder);
+          }
+        });
+      }
+    }, 1000); // Zeit reduziert, um schneller zu reagieren
   });
 } 
