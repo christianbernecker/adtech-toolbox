@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AdTech Toolbox</title>
     
-    <!-- Usercentrics CMP - direkt hinzugefügt, nicht über JS -->
+    <!-- Usercentrics CMP mit manueller Domain-Konfiguration -->
     <script 
       id="usercentrics-cmp" 
-      data-settings-id="3M9Jkz5hR" 
-      data-tcf-enabled
-      src="https://app.usercentrics.eu/browser-ui/latest/loader.js">
+      src="https://web.cmp.usercentrics.eu/ui/loader.js" 
+      data-settings-id="AVmhdo98bxlHZn" 
+      data-tcf-enabled>
     </script>
     
     <!-- Dynamic meta robots tag -->
@@ -32,12 +32,12 @@
     
     <!-- Debug helper for Usercentrics -->
     <script>
-      // Debug helper for Usercentrics
+      // Usercentrics manual domain configuration
       window.addEventListener('UC_UI_INITIALIZED', function() {
         console.log('Usercentrics initialized successfully');
       });
       
-      // Log Usercentrics status on page load
+      // Lösung für mögliche Subdomain-Probleme
       window.addEventListener('load', function() {
         setTimeout(function() {
           console.log('Usercentrics status check:', 
@@ -45,7 +45,17 @@
             window.UC_UI?.isInitialized ? 'Function exists' : 'Function missing',
             window.UC_UI?.isInitialized?.() ? 'Initialized' : 'Not initialized'
           );
-        }, 1000);
+          
+          // Manual domain configuration if needed
+          if (window.UC_UI && !window.UC_UI_INITIALIZED) {
+            try {
+              console.log('Trying manual CMP initialization');
+              window.UC_UI.showFirstLayer();
+            } catch (e) {
+              console.error('Error showing CMP:', e);
+            }
+          }
+        }, 1500);
       });
     </script>
     
