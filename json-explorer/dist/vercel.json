@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "public": true,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/legal/imprint", "destination": "/legal/imprint.html" },
+    { "source": "/legal/privacy", "destination": "/legal/privacy.html" },
+    { "source": "/", "destination": "/staging-index.html" },
+    { "source": "/json-explorer", "destination": "/staging-index.html" },
+    { "source": "/json-explorer/:path*", "destination": "/staging-index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
+} 
