@@ -29,32 +29,7 @@ const MainLayout = () => {
     }
   }, []);
 
-  // Initialize and check Usercentrics manually
-  useEffect(() => {
-    try {
-      // Force Usercentrics initialization if not already done
-      if (typeof window.UC_UI === 'undefined' || !window.UC_UI.isInitialized()) {
-        console.log('Attempting to manually initialize Usercentrics');
-        // Try to reload Usercentrics
-        const script = document.createElement('script');
-        script.src = 'https://app.usercentrics.eu/browser-ui/latest/loader.js';
-        script.id = 'usercentrics-cmp-force';
-        script.setAttribute('data-settings-id', '3M9Jkz5hR');
-        script.setAttribute('data-tcf-enabled', '');
-        document.head.appendChild(script);
-        
-        // Log status after a delay
-        setTimeout(() => {
-          console.log('Usercentrics status after manual load:', 
-            window.UC_UI ? 'Available' : 'Not available',
-            window.UC_UI?.isInitialized() ? 'Initialized' : 'Not initialized'
-          );
-        }, 2000);
-      }
-    } catch (error) {
-      console.error('Error initializing Usercentrics:', error);
-    }
-  }, []);
+  // Usercentrics-Initialisierung ist jetzt zentral in index.html
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);

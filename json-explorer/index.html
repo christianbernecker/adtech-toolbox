@@ -6,12 +6,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AdTech Toolbox</title>
     
+    <!-- Domain-Override für Usercentrics vor dem CMP-Script -->
+    <script>
+      // Diese Funktion wird das CMP mit der korrekten Domain initialisieren
+      window.usercentricsManualStart = function() {
+        if (typeof window.UC_UI !== 'undefined' && typeof window.UC_UI.isInitialized === 'function' && !window.UC_UI.isInitialized()) {
+          try {
+            // Domain Override - wir täuschen vor, auf der Hauptdomain zu sein
+            var originalHostname = window.location.hostname;
+            var isSubdomain = originalHostname.includes('staging');
+            
+            if (isSubdomain) {
+              console.log('Subdomain detected, applying domain override');
+              // Temporärer Override der hostname-Eigenschaft für Usercentrics
+              Object.defineProperty(window.location, 'hostname', {
+                get: function() {
+                  // Während der Usercentrics-Initialisierung die Hauptdomain zurückgeben
+                  return 'adtech-toolbox.com';
+                },
+                configurable: true
+              });
+            }
+            
+            console.log('Manual initialization of Usercentrics');
+            window.UC_UI.showFirstLayer();
+            
+            // Hostname-Override rückgängig machen
+            if (isSubdomain) {
+              Object.defineProperty(window.location, 'hostname', {
+                get: function() {
+                  return originalHostname;
+                },
+                configurable: true
+              });
+            }
+          } catch (e) {
+            console.error('Error during manual CMP initialization:', e);
+          }
+        } else {
+          console.log('Usercentrics not available for manual start or already initialized');
+        }
+      };
+    </script>
+    
     <!-- Usercentrics CMP mit manueller Domain-Konfiguration -->
     <script 
       id="usercentrics-cmp" 
       src="https://web.cmp.usercentrics.eu/ui/loader.js" 
       data-settings-id="AVmhdo98bxlHZn" 
-      data-tcf-enabled>
+      data-tcf-enabled
+      onload="console.log('Usercentrics script loaded')">
     </script>
     
     <!-- Dynamic meta robots tag -->
@@ -32,12 +76,12 @@
     
     <!-- Debug helper for Usercentrics -->
     <script>
-      // Usercentrics manual domain configuration
+      // Usercentrics initialization event
       window.addEventListener('UC_UI_INITIALIZED', function() {
-        console.log('Usercentrics initialized successfully');
+        console.log('Usercentrics initialized successfully via event');
       });
       
-      // Lösung für mögliche Subdomain-Probleme
+      // Erweiterte Lösung für Subdomain-Probleme
       window.addEventListener('load', function() {
         setTimeout(function() {
           console.log('Usercentrics status check:', 
@@ -46,14 +90,10 @@
             window.UC_UI?.isInitialized?.() ? 'Initialized' : 'Not initialized'
           );
           
-          // Manual domain configuration if needed
-          if (window.UC_UI && !window.UC_UI_INITIALIZED) {
-            try {
-              console.log('Trying manual CMP initialization');
-              window.UC_UI.showFirstLayer();
-            } catch (e) {
-              console.error('Error showing CMP:', e);
-            }
+          // Wenn die automatische Initialisierung fehlgeschlagen ist, versuchen wir es manuell
+          if (window.UC_UI && typeof window.UC_UI.isInitialized === 'function' && !window.UC_UI.isInitialized()) {
+            console.log('Automatic initialization failed, trying manual start');
+            window.usercentricsManualStart();
           }
         }, 1500);
       });
