@@ -1,4 +1,29 @@
 {
+  "name": "adtech-toolbox",
+  "version": "1.0.0",
+  "description": "A collection of useful tools for the AdTech industry",
+  "main": "index.js",
+  "scripts": {
+    "build": "cd json-explorer && npm install && npm run build",
+    "deploy": "vercel --prod",
+    "dev": "cd json-explorer && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/christianbernecker/adtech-toolbox-repo.git"
+  },
+  "keywords": [
+    "adtech",
+    "tools",
+    "json",
+    "explorer"
+  ],
+  "author": "Christian Bernecker",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/christianbernecker/adtech-toolbox-repo/issues"
+  },
+  "homepage": "https://adtech-toolbox.com",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
