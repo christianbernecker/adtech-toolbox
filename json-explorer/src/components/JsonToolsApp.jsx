@@ -7,8 +7,8 @@ import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import usePersistedHistory from '../hooks/usePersistedHistory';
 
 function JsonToolsApp() {
-  // Get dark mode from MainLayout via outlet context
-  const { isDarkMode } = useOutletContext() || { isDarkMode: false };
+  // Get dark mode and toggle function from MainLayout via outlet context
+  const { isDarkMode, toggleDarkMode } = useOutletContext() || { isDarkMode: false, toggleDarkMode: () => {} };
   
   // Shared state between tools
   const [activeTab, setActiveTab] = useState('explorer');

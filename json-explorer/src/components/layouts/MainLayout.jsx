@@ -94,17 +94,14 @@ const MainLayout = () => {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="max-w-screen-2xl mx-auto relative">
-        <header className={`py-4 px-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">JSON Tools</h1>
-            <div className="flex items-center space-x-4">
-              {window.location.hostname.includes('staging') && (
-                <div className="bg-yellow-500 text-black px-3 py-1 rounded-md font-bold">
-                  STAGING
-                </div>
-              )}
-              <ThemeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-            </div>
+        <header className={`py-4 px-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} text-right`}>
+          <div className="flex justify-end items-center">
+            {window.location.hostname.includes('staging') && (
+              <div className="bg-yellow-500 text-black px-3 py-1 rounded-md font-bold mr-4">
+                STAGING
+              </div>
+            )}
+            <ThemeToggle isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
           </div>
         </header>
         
@@ -125,7 +122,7 @@ const MainLayout = () => {
           
           {/* Main Content with ref for measuring height */}
           <div ref={contentRef} className="flex-1 p-6">
-            <Outlet context={{ isDarkMode }} />
+            <Outlet context={{ isDarkMode, toggleDarkMode }} />
             
             {/* Bottom Ad Banner inside the content area, dynamically positioned */}
             {showAds && contentHeight > 300 && (
