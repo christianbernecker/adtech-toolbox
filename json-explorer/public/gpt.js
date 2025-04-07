@@ -30,14 +30,39 @@ let usercentricsChecked = false;
 // Variable to store whether personalized ads are enabled
 let personalizedAdsEnabled = true;
 
+// Debug function
+function logUsercentricsStatus() {
+  console.log('UC_UI available:', !!window.UC_UI);
+  if (window.UC_UI) {
+    console.log('UC_UI initialized:', window.UC_UI.isInitialized());
+    if (window.UC_UI.isInitialized()) {
+      const services = window.UC_UI.getServicesBaseInfo();
+      console.log('Services:', services);
+      const hasMarketingConsent = services.some(
+        service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
+      );
+      console.log('Marketing consent:', hasMarketingConsent);
+    }
+  }
+}
+
+// Check Usercentrics on page load
+window.addEventListener('load', function() {
+  setTimeout(logUsercentricsStatus, 1000);
+  setTimeout(logUsercentricsStatus, 3000);
+});
+
 window.googletag.cmd.push(function() {
+  console.log('GPT initialization started');
   // Check if Usercentrics is available
   if (window.UC_UI && !usercentricsChecked) {
+    console.log('Usercentrics detected in GPT');
     // Disable initial loading of ads
     googletag.pubads().disableInitialLoad();
 
     // If Usercentrics has already loaded and user made choices
     if (window.UC_UI.isInitialized()) {
+      console.log('Usercentrics already initialized');
       const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
         service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
       );
@@ -46,10 +71,12 @@ window.googletag.cmd.push(function() {
       personalizedAdsEnabled = hasMarketingConsent;
       googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
       usercentricsChecked = true;
+      console.log('Set personalized ads:', personalizedAdsEnabled);
     }
 
     // Listen for Usercentrics events
     window.addEventListener('UC_UI_INITIALIZED', function() {
+      console.log('UC_UI_INITIALIZED event received');
       const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
         service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
       );
@@ -58,6 +85,7 @@ window.googletag.cmd.push(function() {
       personalizedAdsEnabled = hasMarketingConsent;
       googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
       usercentricsChecked = true;
+      console.log('Set personalized ads after init:', personalizedAdsEnabled);
       
       // Refresh ads
       if (window.pbjs && window.pbjs.setTargetingForGPTAsync) {
@@ -68,6 +96,7 @@ window.googletag.cmd.push(function() {
 
     // Update consent when user updates
     window.addEventListener('UC_UI_CMP_EVENT', function(event) {
+      console.log('UC_UI_CMP_EVENT received:', event.detail.type);
       if (event.detail.type === 'ACCEPT_ALL' || event.detail.type === 'DENY_ALL' || event.detail.type === 'SAVE') {
         const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
           service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
@@ -76,6 +105,7 @@ window.googletag.cmd.push(function() {
         // Update personalized ads setting
         personalizedAdsEnabled = hasMarketingConsent;
         googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
+        console.log('Updated personalized ads after user choice:', personalizedAdsEnabled);
         
         // Refresh ads
         if (window.pbjs && window.pbjs.setTargetingForGPTAsync) {
@@ -85,18 +115,24 @@ window.googletag.cmd.push(function() {
       }
     });
   } else {
+    console.log('Usercentrics not detected, falling back to TCF');
     // Fallback to TCF API if Usercentrics not available
     try {
       // Check if the TCF API exists
       if (typeof window.__tcfapi === 'function') {
+        console.log('TCF API available');
         window.__tcfapi('addEventListener', 2, function(tcData, success) {
+          console.log('TCF callback:', success, tcData?.eventStatus);
           if (success && tcData.eventStatus === 'tcloaded' || tcData.eventStatus === 'useractioncomplete') {
             // Check for consent for personalized ads (Purpose 1 - Store and/or access information on a device)
             const hasConsent = tcData.purpose && tcData.purpose.consents && tcData.purpose.consents[1];
             personalizedAdsEnabled = hasConsent;
             googletag.pubads().setRequestNonPersonalizedAds(hasConsent ? 0 : 1);
+            console.log('TCF consent for personalization:', hasConsent);
           }
         });
+      } else {
+        console.log('TCF API not available');
       }
     } catch (e) {
       console.error('Error in TCF API integration:', e);
@@ -111,6 +147,7 @@ window.googletag.cmd.push(function() {
   googletag.pubads().enableSingleRequest();
   googletag.pubads().collapseEmptyDivs();
   googletag.enableServices();
+  console.log('GPT services enabled');
 });
 
 // Function to request and display ads

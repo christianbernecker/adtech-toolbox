@@ -4,6 +4,8 @@ pbjs.que = pbjs.que || [];
 
 // Prebid Configuration
 pbjs.que.push(function() {
+  console.log('Prebid configuration started');
+  
   const adUnits = [{
     code: 'div-gpt-ad-1',
     mediaTypes: {
@@ -20,45 +22,69 @@ pbjs.que.push(function() {
   }];
 
   // Configure Usercentrics CMP Integration
-  pbjs.setConfig({
-    userSync: {
-      filterSettings: {
-        iframe: {
-          bidders: '*',
-          filter: 'include'
+  try {
+    // Enable debug for easier troubleshooting
+    pbjs.setConfig({
+      debug: true,
+      userSync: {
+        filterSettings: {
+          iframe: {
+            bidders: '*',
+            filter: 'include'
+          }
         }
-      }
-    },
-    consentManagement: {
-      gdpr: {
-        cmpApi: 'iab',
-        timeout: 8000,
-        defaultGdprScope: true
       },
-      usp: {
-        cmpApi: 'iab',
-        timeout: 100
-      }
-    },
-    // Additional Prebid configuration
-    currency: {
-      adServerCurrency: 'EUR'
-    },
-    debug: false,
-    bidderTimeout: 2000
-  });
+      consentManagement: {
+        gdpr: {
+          cmpApi: 'iab',
+          timeout: 8000,
+          defaultGdprScope: true
+        },
+        usp: {
+          cmpApi: 'iab',
+          timeout: 100
+        }
+      },
+      // Additional Prebid configuration
+      currency: {
+        adServerCurrency: 'EUR'
+      },
+      bidderTimeout: 2000
+    });
+    
+    console.log('Prebid configuration set');
+  } catch (error) {
+    console.error('Error setting Prebid config:', error);
+  }
 
-  pbjs.addAdUnits(adUnits);
+  try {
+    pbjs.addAdUnits(adUnits);
+    console.log('Ad units added to Prebid');
+  } catch (error) {
+    console.error('Error adding ad units:', error);
+  }
 
   // Request bids and set targeting
-  pbjs.requestBids({
-    bidsBackHandler: function() {
-      googletag.cmd.push(function() {
-        pbjs.que.push(function() {
-          pbjs.setTargetingForGPTAsync();
-          googletag.pubads().refresh();
+  try {
+    pbjs.requestBids({
+      bidsBackHandler: function(bidResponses) {
+        console.log('Prebid bids received:', bidResponses);
+        googletag.cmd.push(function() {
+          pbjs.que.push(function() {
+            try {
+              pbjs.setTargetingForGPTAsync();
+              console.log('Targeting set for GPT');
+              googletag.pubads().refresh();
+              console.log('GPT refresh called');
+            } catch (error) {
+              console.error('Error setting targeting:', error);
+            }
+          });
         });
-      });
-    }
-  });
+      }
+    });
+    console.log('Prebid bid request sent');
+  } catch (error) {
+    console.error('Error requesting bids:', error);
+  }
 }); 

@@ -6,7 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AdTech Toolbox</title>
     <!-- Usercentrics CMP -->
-    <script id="usercentrics-cmp" data-settings-id="3M9Jkz5hR" src="https://app.usercentrics.eu/browser-ui/latest/loader.js" async></script>
+    <script id="usercentrics-cmp" 
+      src="https://app.usercentrics.eu/browser-ui/latest/loader.js" 
+      data-settings-id="3M9Jkz5hR" 
+      data-tcf-enabled
+      async></script>
+    <script>
+      // Debug helper for Usercentrics
+      window.addEventListener('UC_UI_INITIALIZED', function() {
+        console.log('Usercentrics initialized successfully');
+      });
+    </script>
     <!-- Prebid.js -->
     <script async src="/prebid.js"></script>
     <!-- GPT -->
