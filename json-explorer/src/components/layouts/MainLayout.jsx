@@ -94,9 +94,9 @@ const MainLayout = () => {
           <div className="flex-1 p-6">
             <Outlet context={{ isDarkMode, toggleDarkMode }} />
             
-            {/* Bottom Ad Banner - positioned inside content div after the main content */}
+            {/* Bottom Ad Banner - positioned inside content div after the main content with minimum 200px margin */}
             {showAds && (
-              <div className="w-full mt-8">
+              <div className="w-full" style={{ marginTop: '200px' }}>
                 <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
                   {/* Ad will be loaded here */}
                   <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
