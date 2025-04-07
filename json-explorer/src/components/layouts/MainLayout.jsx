@@ -1,46 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import ThemeToggle from '../common/ThemeToggle';
 import '../../styles/MainLayout.css';
 
 const MainLayout = () => {
-  const contentRef = useRef(null);
-  const [contentHeight, setContentHeight] = useState(0);
-  
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('darkMode');
     return savedTheme ? JSON.parse(savedTheme) : false;
   });
 
   const [showAds, setShowAds] = useState(true);
-
-  // Update content height on resize and content changes
-  useEffect(() => {
-    const updateContentHeight = () => {
-      if (contentRef.current) {
-        setContentHeight(contentRef.current.clientHeight);
-      }
-    };
-
-    // Initial height calculation
-    updateContentHeight();
-
-    // Set up resize observer to monitor content height changes
-    const resizeObserver = new ResizeObserver(updateContentHeight);
-    if (contentRef.current) {
-      resizeObserver.observe(contentRef.current);
-    }
-
-    // Also listen for window resize events
-    window.addEventListener('resize', updateContentHeight);
-
-    return () => {
-      if (contentRef.current) {
-        resizeObserver.unobserve(contentRef.current);
-      }
-      window.removeEventListener('resize', updateContentHeight);
-    };
-  }, []);
 
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
@@ -94,7 +63,8 @@ const MainLayout = () => {
   return (
     <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <div className="max-w-screen-2xl mx-auto relative">
-        <header className={`py-4 px-6 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} text-right`}>
+        {/* Simple header - only show STAGING badge and theme toggle */}
+        <header className={`py-4 px-6 text-right`}>
           <div className="flex justify-end items-center">
             {window.location.hostname.includes('staging') && (
               <div className="bg-yellow-500 text-black px-3 py-1 rounded-md font-bold mr-4">
@@ -105,7 +75,7 @@ const MainLayout = () => {
           </div>
         </header>
         
-        <div className="flex flex-wrap lg:flex-nowrap">
+        <div className="flex flex-wrap lg:flex-nowrap relative">
           {/* Left Ad Banner */}
           {showAds && (
             <div className="w-full lg:w-auto lg:h-screen overflow-hidden" style={{ minWidth: '160px' }}>
@@ -120,21 +90,9 @@ const MainLayout = () => {
             </div>
           )}
           
-          {/* Main Content with ref for measuring height */}
-          <div ref={contentRef} className="flex-1 p-6">
+          {/* Main Content */}
+          <div className="flex-1 p-6">
             <Outlet context={{ isDarkMode, toggleDarkMode }} />
-            
-            {/* Bottom Ad Banner inside the content area, dynamically positioned */}
-            {showAds && contentHeight > 300 && (
-              <div className="w-full mt-8">
-                <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
-                  {/* Ad will be loaded here */}
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
-                    <span className="text-gray-400 text-sm text-center">Ad Space</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
           
           {/* Right Ad Banner */}
@@ -151,6 +109,18 @@ const MainLayout = () => {
             </div>
           )}
         </div>
+        
+        {/* Bottom Ad Banner - outside content div, aligned with bottom of side banners */}
+        {showAds && (
+          <div className="w-full py-6 px-4">
+            <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
+              {/* Ad will be loaded here */}
+              <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
+                <span className="text-gray-400 text-sm text-center">Ad Space</span>
+              </div>
+            </div>
+          </div>
+        )}
         
         <footer className={`py-4 px-6 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <div className="flex flex-col md:flex-row justify-between items-center">
