@@ -3,6 +3,37 @@ import { Outlet } from 'react-router-dom';
 import ThemeToggle from '../common/ThemeToggle';
 import '../../styles/MainLayout.css';
 
+// Test-Anzeigen Komponenten
+const TestAdLeft = () => (
+  <div style={{ width: '160px', height: '600px', background: 'linear-gradient(135deg, #4285f4, #34a853)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: 'Arial' }}>
+    <div>
+      <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '10px' }}>TEST AD - LEFT</div>
+      <div style={{ fontSize: '12px' }}>160x600</div>
+      <div style={{ marginTop: '20px', fontSize: '10px' }}>/6355419/Travel/Europe/France/Paris</div>
+    </div>
+  </div>
+);
+
+const TestAdRight = () => (
+  <div style={{ width: '300px', height: '600px', background: 'linear-gradient(135deg, #ea4335, #fbbc05)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: 'Arial' }}>
+    <div>
+      <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>TEST AD - RIGHT</div>
+      <div style={{ fontSize: '12px' }}>300x600</div>
+      <div style={{ marginTop: '20px', fontSize: '10px' }}>/6355419/Travel/Europe/France/Paris</div>
+    </div>
+  </div>
+);
+
+const TestAdBottom = () => (
+  <div style={{ width: '728px', maxWidth: '100%', height: '90px', background: 'linear-gradient(90deg, #fbbc05, #ea4335)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', fontFamily: 'Arial' }}>
+    <div>
+      <div style={{ fontSize: '14px', fontWeight: 'bold' }}>TEST AD - BOTTOM</div>
+      <div style={{ fontSize: '10px', marginTop: '5px' }}>728x90</div>
+      <div style={{ fontSize: '9px', marginTop: '5px' }}>/6355419/Travel/Europe/France/Paris</div>
+    </div>
+  </div>
+);
+
 const MainLayout = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('darkMode');
@@ -10,6 +41,7 @@ const MainLayout = () => {
   });
 
   const [showAds, setShowAds] = useState(true);
+  const [isStaging, setIsStaging] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
@@ -17,13 +49,17 @@ const MainLayout = () => {
     document.documentElement.classList.toggle('dark', isDarkMode);
   }, [isDarkMode]);
 
-  // Check for no_ads parameter in URL
+  // Check for no_ads parameter in URL and set staging flag
   useEffect(() => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('no_ads')) {
         setShowAds(false);
       }
+      
+      // Prüfe, ob wir uns auf Staging befinden
+      const hostname = window.location.hostname;
+      setIsStaging(hostname.includes('staging') || hostname === 'localhost');
     } catch (error) {
       console.error('Error checking URL parameters:', error);
     }
@@ -41,7 +77,7 @@ const MainLayout = () => {
         {/* Simple header - only show STAGING badge */}
         <header className={`py-4 px-6 text-right`}>
           <div className="flex justify-end items-center">
-            {window.location.hostname.includes('staging') && (
+            {isStaging && (
               <div className="bg-yellow-500 text-black px-3 py-1 rounded-md font-bold">
                 STAGING
               </div>
@@ -55,9 +91,13 @@ const MainLayout = () => {
           {showAds && (
             <div className="w-full lg:w-auto lg:h-screen overflow-hidden" style={{ minWidth: '160px' }}>
               <div className="sticky top-0 pt-4">
-                <div id="div-gpt-ad-left" className="mx-auto" style={{ width: '160px', height: '600px' }}>
-                  {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
-                </div>
+                {isStaging ? (
+                  <TestAdLeft />
+                ) : (
+                  <div id="div-gpt-ad-left" className="mx-auto" style={{ width: '160px', height: '600px' }}>
+                    {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -69,9 +109,15 @@ const MainLayout = () => {
             {/* Bottom Ad Banner - positioned inside content div after the main content with minimum 200px margin */}
             {showAds && (
               <div className="w-full" style={{ marginTop: '200px' }}>
-                <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
-                  {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
-                </div>
+                {isStaging ? (
+                  <div className="mx-auto" style={{ width: '728px', maxWidth: '100%' }}>
+                    <TestAdBottom />
+                  </div>
+                ) : (
+                  <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
+                    {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -80,9 +126,13 @@ const MainLayout = () => {
           {showAds && (
             <div className="w-full lg:w-auto lg:h-screen overflow-hidden" style={{ minWidth: '300px' }}>
               <div className="sticky top-0 pt-4">
-                <div id="div-gpt-ad-right" className="mx-auto" style={{ width: '300px', height: '600px' }}>
-                  {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
-                </div>
+                {isStaging ? (
+                  <TestAdRight />
+                ) : (
+                  <div id="div-gpt-ad-right" className="mx-auto" style={{ width: '300px', height: '600px' }}>
+                    {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
+                  </div>
+                )}
               </div>
             </div>
           )}
