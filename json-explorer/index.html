@@ -59,6 +59,63 @@
       }
     </style>
     
+    <!-- Globale Werbe-Consent-Variable und Funktionen -->
+    <script>
+      // Globaler Consent-Status
+      window.adConsent = {
+        allowAdvertising: false,
+        allowAnalytics: false,
+        allowFunctional: true,
+        consentGiven: false
+      };
+      
+      // Funktion zum Aktivieren der Werbung
+      window.activateAdvertising = function() {
+        console.log('Activating advertising components');
+        window.adConsent.allowAdvertising = true;
+        window.adConsent.allowAnalytics = true;
+        window.adConsent.consentGiven = true;
+        
+        // Event auslösen, damit andere Skripte informiert werden
+        var consentEvent = new CustomEvent('adConsentChanged', { 
+          detail: { consent: window.adConsent } 
+        });
+        window.dispatchEvent(consentEvent);
+        
+        // Werbe-Slots initialisieren oder neu laden
+        if (window.googletag && googletag.pubads) {
+          console.log('Refreshing ad slots');
+          googletag.cmd.push(function() {
+            googletag.pubads().refresh();
+          });
+        }
+        
+        // Falls Prebid.js verwendet wird
+        if (window.pbjs) {
+          console.log('Activating Prebid.js');
+          pbjs.setConfig({
+            consentManagement: {
+              gdpr: { cmpApi: 'static', consentData: { getTCData: { tcString: '', gdprApplies: false } } }
+            }
+          });
+        }
+      };
+      
+      // Funktion zum Deaktivieren der Werbung
+      window.deactivateAdvertising = function() {
+        console.log('Deactivating advertising components');
+        window.adConsent.allowAdvertising = false;
+        window.adConsent.allowAnalytics = false;
+        window.adConsent.consentGiven = true;
+        
+        // Event auslösen
+        var consentEvent = new CustomEvent('adConsentChanged', { 
+          detail: { consent: window.adConsent } 
+        });
+        window.dispatchEvent(consentEvent);
+      };
+    </script>
+    
     <!-- Usercentrics nur für Produktionsumgebung -->
     <script>
       // Überprüfen, ob wir uns auf Staging befinden
@@ -121,8 +178,18 @@
           `;
           document.body.appendChild(bannerDiv);
           
-          // Banner anzeigen, wenn keine Zustimmung vorliegt
-          if (!getCookie('custom_cookie_consent')) {
+          // Prüfen, ob Consent bereits gegeben wurde
+          var existingConsent = getCookie('custom_cookie_consent');
+          if (existingConsent) {
+            if (existingConsent === 'all') {
+              // Bestehender Consent für alle Cookies
+              window.activateAdvertising();
+            } else {
+              // Nur essenzielle Cookies erlaubt
+              window.deactivateAdvertising();
+            }
+          } else {
+            // Kein Consent, Banner anzeigen
             setTimeout(function() { 
               document.getElementById('custom-cmp-banner').style.display = 'block';
             }, 800);
@@ -133,6 +200,14 @@
             setCookie('custom_cookie_consent', 'all', 365);
             document.getElementById('custom-cmp-banner').style.display = 'none';
             console.log('All cookies accepted (staging mode)');
+            
+            // Werbung aktivieren
+            window.activateAdvertising();
+            
+            // Seite neu laden, um sicherzustellen, dass Anzeigen korrekt geladen werden
+            setTimeout(function() {
+              window.location.reload();
+            }, 300);
           });
           
           document.querySelector('#custom-cmp-banner button.customize').addEventListener('click', function() {
@@ -143,6 +218,14 @@
             setCookie('custom_cookie_consent', 'necessary', 365);
             document.getElementById('custom-cmp-banner').style.display = 'none';
             console.log('Only necessary cookies accepted (staging mode)');
+            
+            // Werbung deaktivieren
+            window.deactivateAdvertising();
+            
+            // Seite neu laden, um sicherzustellen, dass keine Anzeigen geladen werden
+            setTimeout(function() {
+              window.location.reload();
+            }, 300);
           });
           
           console.log('Custom CMP banner initialized for staging environment');
