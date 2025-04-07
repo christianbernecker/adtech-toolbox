@@ -15,12 +15,36 @@ const AdComponent = ({ adUnitId, className = '', style = {} }) => {
   useEffect(() => {
     // Only initialize ads if they're not already displayed
     if (!adDisplayed.current && adContainerRef.current) {
-      // Check if GPT is loaded
-      if (window.googletag && googletag.apiReady) {
-        googletag.cmd.push(function() {
-          googletag.display(adUnitId);
+      // Safe access to googletag
+      if (window.googletag) {
+        window.googletag.cmd = window.googletag.cmd || [];
+        window.googletag.cmd.push(function() {
+          try {
+            window.googletag.display(adUnitId);
+            adDisplayed.current = true;
+            console.log(`Ad displayed: ${adUnitId}`);
+          } catch (err) {
+            console.error(`Error displaying ad ${adUnitId}:`, err);
+          }
         });
-        adDisplayed.current = true;
+      } else {
+        // Add placeholder for when GPT is not loaded
+        console.warn(`GPT not loaded for ${adUnitId}`);
+        const placeholder = document.createElement('div');
+        placeholder.style.background = '#f0f0f0';
+        placeholder.style.display = 'flex';
+        placeholder.style.alignItems = 'center';
+        placeholder.style.justifyContent = 'center';
+        placeholder.style.width = '100%';
+        placeholder.style.height = '100%';
+        placeholder.style.minHeight = adUnitId.includes('sidebar') ? '250px' : '90px';
+        placeholder.innerText = 'Ad placeholder';
+        
+        // Clear and append placeholder
+        if (adContainerRef.current) {
+          adContainerRef.current.innerHTML = '';
+          adContainerRef.current.appendChild(placeholder);
+        }
       }
     }
 
@@ -45,6 +69,12 @@ const AdComponent = ({ adUnitId, className = '', style = {} }) => {
 
   // Merge default styles with passed-in styles
   const mergedStyles = { ...getDefaultStyle(), ...style };
+
+  // Add a border in development/staging to visualize ad slots better
+  if (window.location.hostname.includes('staging') || window.location.hostname.includes('localhost')) {
+    mergedStyles.border = '1px dashed #ccc';
+    mergedStyles.backgroundColor = '#f9f9f9';
+  }
 
   // Render ad container with proper ID
   return (
