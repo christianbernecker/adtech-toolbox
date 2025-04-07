@@ -3,13 +3,14 @@ import TabNavigation from './common/TabNavigation';
 import JsonVastExplorer from './JsonVastExplorer/JsonVastExplorer';
 import JsonDiffInspector from './JsonDiffInspector/JsonDiffInspector';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
+import usePersistedHistory from '../hooks/usePersistedHistory';
 
 function JsonToolsApp() {
   // Shared state between tools
   const [activeTab, setActiveTab] = useState('explorer');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [history, setHistory] = useState([]);
-  const [showHistory, setShowHistory] = useState(false);
+  // Use the persisted history hook instead of useState
+  const [history, setHistory, showHistory, setShowHistory] = usePersistedHistory('json-explorer-history', []);
   
   // Use keyboard shortcuts
   useKeyboardShortcuts(activeTab, setActiveTab, setIsDarkMode, setShowHistory);
@@ -34,7 +35,7 @@ function JsonToolsApp() {
           </div>
           <div>
             <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-              JSON Tools - Staging
+              JSON Tools
             </h1>
             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Explorer & Diff Inspector</div>
           </div>
