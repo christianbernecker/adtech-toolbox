@@ -98,16 +98,22 @@ if (noAds) {
   window.googletag.cmd.push(function() {
     console.log('GPT initialization started');
     
+    // Bestimme, ob wir uns in der Staging- oder Produktionsumgebung befinden
+    const isStaging = window.location.hostname.includes('staging') || window.location.hostname === 'localhost';
+    const adUnitPrefix = isStaging ? '/6355419/Travel/Europe/France/Paris' : '/19968336/adtech-toolbox';
+    
+    console.log('🏗️ Using ad unit prefix:', adUnitPrefix);
+    
     // Define ad slots for each position
-    googletag.defineSlot('/19968336/adtech-toolbox-left', adSizes.left, 'div-gpt-ad-left')
+    googletag.defineSlot(`${adUnitPrefix}-left`, adSizes.left, 'div-gpt-ad-left')
       .addService(googletag.pubads())
       .setTargeting('position', ['left']);
       
-    googletag.defineSlot('/19968336/adtech-toolbox-right', adSizes.right, 'div-gpt-ad-right')
+    googletag.defineSlot(`${adUnitPrefix}-right`, adSizes.right, 'div-gpt-ad-right')
       .addService(googletag.pubads())
       .setTargeting('position', ['right']);
       
-    googletag.defineSlot('/19968336/adtech-toolbox-bottom', adSizes.bottom, 'div-gpt-ad-bottom')
+    googletag.defineSlot(`${adUnitPrefix}-bottom`, adSizes.bottom, 'div-gpt-ad-bottom')
       .addService(googletag.pubads())
       .setTargeting('position', ['bottom']);
     
@@ -116,7 +122,6 @@ if (noAds) {
     googletag.pubads().setTargeting('site', ['adtech-toolbox']);
     
     // Add environment targeting
-    const isStaging = window.location.hostname.includes('staging');
     googletag.pubads().setTargeting('env', [isStaging ? 'staging' : 'production']);
     
     // Check if Usercentrics is available
