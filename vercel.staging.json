@@ -16,5 +16,8 @@
       "staging": true,
       "main": false
     }
+  },
+  "env": {
+    "VITE_ENVIRONMENT": "staging"
   }
 } 
