@@ -5,6 +5,7 @@ import JsonDiffInspector from './JsonDiffInspector/JsonDiffInspector';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import usePersistedHistory from '../hooks/usePersistedHistory';
 import Footer from './common/Footer';
+import AdComponent from './common/AdComponent';
 
 function JsonToolsApp() {
   // Shared state between tools
@@ -26,6 +27,11 @@ function JsonToolsApp() {
           <span className="ml-2">⚠️</span>
         </div>
       )}
+      
+      {/* Top Ad Banner */}
+      <div className="w-full max-w-6xl mx-auto mt-4">
+        <AdComponent adUnitId="div-gpt-ad-top-banner" />
+      </div>
       
       <div className={`p-6 w-full max-w-6xl mx-auto ${window.location.hostname.includes('staging') ? 'mt-10' : ''}`}>
       {/* Header */}
@@ -108,24 +114,40 @@ function JsonToolsApp() {
         )}
       </div>
       
-      {/* Active Tool Content */}
-      {activeTab === 'explorer' ? (
-        <JsonVastExplorer 
-          isDarkMode={isDarkMode} 
-          history={history}
-          setHistory={setHistory}
-          showHistory={showHistory}
-          setShowHistory={setShowHistory}
-        />
-      ) : (
-        <JsonDiffInspector 
-          isDarkMode={isDarkMode} 
-          history={history}
-          setHistory={setHistory}
-          showHistory={showHistory}
-          setShowHistory={setShowHistory}
-        />
-      )}
+      {/* Main Content with Sidebar Ad */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Main Content */}
+        <div className="flex-1">
+          {/* Active Tool Content */}
+          {activeTab === 'explorer' ? (
+            <JsonVastExplorer 
+              isDarkMode={isDarkMode} 
+              history={history}
+              setHistory={setHistory}
+              showHistory={showHistory}
+              setShowHistory={setShowHistory}
+            />
+          ) : (
+            <JsonDiffInspector 
+              isDarkMode={isDarkMode} 
+              history={history}
+              setHistory={setHistory}
+              showHistory={showHistory}
+              setShowHistory={setShowHistory}
+            />
+          )}
+        </div>
+        
+        {/* Sidebar Ad */}
+        <div className="md:w-[300px] min-h-[600px] self-start sticky top-6">
+          <AdComponent adUnitId="div-gpt-ad-sidebar" />
+        </div>
+      </div>
+      
+      {/* Bottom Ad Banner */}
+      <div className="mt-8">
+        <AdComponent adUnitId="div-gpt-ad-bottom-banner" />
+      </div>
       
       {/* Footer */}
       <Footer isDarkMode={isDarkMode} />
