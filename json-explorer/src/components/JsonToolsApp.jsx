@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import TabNavigation from './common/TabNavigation';
 import JsonVastExplorer from './JsonVastExplorer/JsonVastExplorer';
 import JsonDiffInspector from './JsonDiffInspector/JsonDiffInspector';
@@ -8,14 +9,16 @@ import Footer from './common/Footer';
 import AdComponent from './common/AdComponent';
 
 function JsonToolsApp() {
+  // Get dark mode from MainLayout via outlet context
+  const { isDarkMode } = useOutletContext() || { isDarkMode: false };
+  
   // Shared state between tools
   const [activeTab, setActiveTab] = useState('explorer');
-  const [isDarkMode, setIsDarkMode] = useState(false);
   // Use the persisted history hook instead of useState
   const [history, setHistory, showHistory, setShowHistory] = usePersistedHistory('json-explorer-history', []);
   
   // Use keyboard shortcuts
-  useKeyboardShortcuts(activeTab, setActiveTab, setIsDarkMode, setShowHistory);
+  useKeyboardShortcuts(activeTab, setActiveTab, () => {}, setShowHistory);
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-white'} transition-colors duration-200`}>

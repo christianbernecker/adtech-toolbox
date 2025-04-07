@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AdTech Toolbox</title>
     
+    <!-- Usercentrics CMP - direkt hinzugefügt, nicht über JS -->
+    <script 
+      id="usercentrics-cmp" 
+      data-settings-id="3M9Jkz5hR" 
+      data-tcf-enabled
+      src="https://app.usercentrics.eu/browser-ui/latest/loader.js">
+    </script>
+    
     <!-- Dynamic meta robots tag -->
     <script>
       // Check if this is staging or has no_ads parameter
@@ -22,46 +30,30 @@
       }
     </script>
     
-    <!-- Usercentrics CMP -->
-    <script id="usercentrics-cmp" 
-      src="https://app.usercentrics.eu/browser-ui/latest/loader.js" 
-      data-settings-id="3M9Jkz5hR" 
-      data-tcf-enabled
-      async></script>
+    <!-- Debug helper for Usercentrics -->
     <script>
       // Debug helper for Usercentrics
       window.addEventListener('UC_UI_INITIALIZED', function() {
         console.log('Usercentrics initialized successfully');
       });
       
-      // Fallback for Usercentrics
-      let usercentricsLoaded = false;
-      
-      // Check if Usercentrics loaded after 3 seconds
-      setTimeout(function() {
-        if (!window.UC_UI || !window.UC_UI.isInitialized()) {
-          console.log('Usercentrics failed to initialize automatically, trying manual load');
-          usercentricsLoaded = false;
-          
-          // Try to reload Usercentrics
-          const script = document.createElement('script');
-          script.src = 'https://app.usercentrics.eu/browser-ui/latest/loader.js';
-          script.id = 'usercentrics-cmp-reload';
-          script.setAttribute('data-settings-id', '3M9Jkz5hR');
-          script.setAttribute('data-tcf-enabled', '');
-          document.head.appendChild(script);
-        } else {
-          usercentricsLoaded = true;
-          console.log('Usercentrics initialized successfully on first try');
-        }
-      }, 3000);
+      // Log Usercentrics status on page load
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          console.log('Usercentrics status check:', 
+            window.UC_UI ? 'Available' : 'Not available',
+            window.UC_UI?.isInitialized ? 'Function exists' : 'Function missing',
+            window.UC_UI?.isInitialized?.() ? 'Initialized' : 'Not initialized'
+          );
+        }, 1000);
+      });
     </script>
     
     <!-- Prebid.js -->
-    <script async src="/prebid.js"></script>
+    <script src="/prebid.js"></script>
     
     <!-- GPT -->
-    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+    <script src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
     <script src="/gpt.js"></script>
   </head>
   <body>
