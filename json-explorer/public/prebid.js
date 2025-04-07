@@ -56,6 +56,10 @@ window.pbjs.que.push(function() {
         cmpApi: 'iab',
         timeout: 8000,
         defaultGdprScope: true
+      },
+      usp: {
+        cmpApi: 'iab',
+        timeout: 100 // US Privacy timeout 100ms
       }
     }
   });

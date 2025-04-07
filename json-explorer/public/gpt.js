@@ -57,7 +57,28 @@ googletag.cmd.push(function() {
   });
   
   // GDPR compliance
-  if (typeof __tcfapi === 'function') {
+  if (typeof window.Cookiebot !== 'undefined') {
+    googletag.pubads().disableInitialLoad();
+    
+    // Wenn Cookiebot bereits geladen ist
+    if (window.Cookiebot.consented) {
+      const hasAdvertisingConsent = window.Cookiebot.consent.marketing;
+      googletag.pubads().setRequestNonPersonalizedAds(hasAdvertisingConsent ? 0 : 1);
+      googletag.pubads().refresh();
+    } else {
+      // Warte auf Cookiebot Consent-Event
+      window.addEventListener('CookiebotOnAccept', function() {
+        const hasAdvertisingConsent = window.Cookiebot.consent.marketing;
+        googletag.pubads().setRequestNonPersonalizedAds(hasAdvertisingConsent ? 0 : 1);
+        googletag.pubads().refresh();
+      });
+      
+      window.addEventListener('CookiebotOnDecline', function() {
+        googletag.pubads().setRequestNonPersonalizedAds(1); // Non-personalized ads
+        googletag.pubads().refresh();
+      });
+    }
+  } else if (typeof __tcfapi === 'function') {
     googletag.pubads().disableInitialLoad();
     
     // Set personalized ads based on user consent

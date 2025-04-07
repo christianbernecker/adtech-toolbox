@@ -166,7 +166,7 @@ const JsonVastExplorer = ({ isDarkMode, setHistory, history, showHistory, setSho
     if (!html) return '';
     
     const lines = html.split('\n');
-    let result = '<table cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">';
+    let result = '<table cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse; table-layout: fixed;">';
     
     // Calculate font size based on zoom level
     const fontSize = Math.round(12 * zoomLevel);
@@ -175,7 +175,7 @@ const JsonVastExplorer = ({ isDarkMode, setHistory, history, showHistory, setSho
       result += `
         <tr>
           <td style="width: 30px; text-align: right; color: ${isDarkMode ? '#9ca3af' : '#999'}; user-select: none; padding-right: 8px; font-size: ${fontSize}px; border-right: 1px solid ${isDarkMode ? '#4b5563' : '#ddd'}; vertical-align: top;">${index + 1}</td>
-          <td style="padding-left: 8px; white-space: pre; font-family: monospace; font-size: ${fontSize}px;">${line}</td>
+          <td style="padding-left: 8px; white-space: pre; font-family: monospace; font-size: ${fontSize}px; overflow-x: visible;">${line}</td>
         </tr>
       `;
     });
@@ -374,13 +374,14 @@ const JsonVastExplorer = ({ isDarkMode, setHistory, history, showHistory, setSho
             <SearchPanel targetRef={jsonContentRef} contentType="JSON" isDarkMode={isDarkMode} />
           </div>
           
-          <div className={`p-4 rounded-lg border shadow-inner overflow-auto ${
+          <div className={`p-4 rounded-lg border shadow-inner overflow-x-auto max-h-[600px] ${
             isDarkMode 
               ? 'bg-gray-800 border-gray-700' 
               : 'bg-gray-50 border-gray-200'
           }`}>
             <div 
               ref={jsonContentRef}
+              className="min-w-max"
               dangerouslySetInnerHTML={{ 
                 __html: formattedJsonHtml
               }}
@@ -466,13 +467,14 @@ const JsonVastExplorer = ({ isDarkMode, setHistory, history, showHistory, setSho
             <SearchPanel targetRef={vastContentRef} contentType="VAST" isDarkMode={isDarkMode} />
           </div>
           
-          <div className={`p-4 rounded-lg border shadow-inner overflow-auto ${
+          <div className={`p-4 rounded-lg border shadow-inner overflow-x-auto max-h-[600px] ${
             isDarkMode 
               ? 'bg-gray-800 border-gray-700' 
               : 'bg-gray-50 border-gray-200'
           }`}>
             <div 
               ref={vastContentRef}
+              className="min-w-max"
               dangerouslySetInnerHTML={{ 
                 __html: formattedVastHtml 
               }}
