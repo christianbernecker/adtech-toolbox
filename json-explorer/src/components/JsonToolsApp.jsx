@@ -42,22 +42,20 @@ function JsonToolsApp() {
         </div>
         
         <div className="flex items-center space-x-3">
-          {activeTab === 'explorer' && (
-            <button 
-              onClick={() => setShowHistory(prev => !prev)}
-              className={`flex items-center px-4 py-2 rounded-lg ${
-                isDarkMode 
-                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              } transition`}
-              title="Show/Hide History (Ctrl+Shift+H)"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {showHistory ? 'Hide' : 'Show'} History ({history.length})
-            </button>
-          )}
+          <button 
+            onClick={() => setShowHistory(prev => !prev)}
+            className={`flex items-center px-4 py-2 rounded-lg ${
+              isDarkMode 
+                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            } transition`}
+            title="Show/Hide History (Ctrl+Shift+H)"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {showHistory ? 'Hide' : 'Show'} History ({history.length})
+          </button>
           
           <button 
             onClick={() => setIsDarkMode(prev => !prev)}
