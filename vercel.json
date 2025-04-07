@@ -4,7 +4,7 @@
   "buildCommand": "cd json-explorer && npm install && npm run build",
   "outputDirectory": "json-explorer/dist",
   "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/(.*)", "dest": "/json-explorer/dist/index.html" }
   ],
   "github": {
     "silent": false
