@@ -1,7 +1,8 @@
 import React, { useRef, useState, useCallback, useMemo } from 'react';
 import useHighlighter from '../../hooks/useHighlighter';
+import HistoryItem from '../JsonVastExplorer/HistoryItem';
 
-const JsonDiffInspector = React.memo(({ isDarkMode }) => {
+const JsonDiffInspector = React.memo(({ isDarkMode, history, setHistory, showHistory, setShowHistory }) => {
   // Refs for content
   const leftContentRef = useRef(null);
   const rightContentRef = useRef(null);
@@ -15,6 +16,17 @@ const JsonDiffInspector = React.memo(({ isDarkMode }) => {
   
   // Custom hook for syntax highlighting
   const { highlightJson } = useHighlighter();
+  
+  // Restore comparison from history
+  const restoreFromHistory = useCallback((item) => {
+    if (item.type === 'comparison') {
+      setLeftJsonInput(JSON.stringify(item.leftJson, null, 2));
+      setRightJsonInput(JSON.stringify(item.rightJson, null, 2));
+      setComparisonResult(item.result);
+      setComparisonMode(item.mode);
+      setShowHistory(false);
+    }
+  }, [setShowHistory]);
   
   // Optimized function to add line numbers
   const addLineNumbers = useCallback((html, type) => {
@@ -143,11 +155,23 @@ const JsonDiffInspector = React.memo(({ isDarkMode }) => {
       
       setComparisonResult(result);
       setError('');
+      
+      // Add to history
+      const newHistoryItem = {
+        type: 'comparison',
+        leftJson,
+        rightJson,
+        result,
+        mode: comparisonMode,
+        timestamp: new Date().getTime()
+      };
+      
+      setHistory(prev => [newHistoryItem, ...prev].slice(0, 10));
     } catch (err) {
       setError(`Parsing error: ${err.message}`);
       setComparisonResult(null);
     }
-  }, [leftJsonInput, rightJsonInput, comparisonMode, findStructuralDifferences, findValueDifferences]);
+  }, [leftJsonInput, rightJsonInput, comparisonMode, findStructuralDifferences, findValueDifferences, setHistory]);
   
   // Handle input changes
   const handleLeftInputChange = useCallback((e) => {
@@ -380,119 +404,95 @@ const JsonDiffInspector = React.memo(({ isDarkMode }) => {
   
   return (
     <div className="w-full">
-      <div className="mb-4">
-        <div className={`mb-4 p-3 rounded-lg text-sm ${
-          isDarkMode ? 'bg-gray-800 text-gray-300 border border-gray-700' : 'bg-blue-50 text-blue-800 border border-blue-100'
+      {/* History Panel */}
+      {showHistory && (
+        <div className={`mb-6 p-4 border rounded-lg shadow-sm ${
+          isDarkMode 
+            ? 'bg-gray-800 border-gray-700' 
+            : 'bg-white border-gray-200'
         }`}>
-          <strong>Comparison Mode:</strong> 
-          <div className="mt-2 flex flex-wrap gap-2">
-            <label className={`flex items-center cursor-pointer ${
-              comparisonMode === 'both' 
-                ? isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white' 
-                : isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
-            } px-3 py-1 rounded-lg`}>
-              <input 
-                type="radio" 
-                name="comparisonMode" 
-                value="both" 
-                checked={comparisonMode === 'both'}
-                onChange={() => setComparisonMode('both')}
-                className="sr-only"
-              />
-              <span>Complete Comparison</span>
-            </label>
-            <label className={`flex items-center cursor-pointer ${
-              comparisonMode === 'structure' 
-                ? isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white' 
-                : isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
-            } px-3 py-1 rounded-lg`}>
-              <input 
-                type="radio" 
-                name="comparisonMode" 
-                value="structure" 
-                checked={comparisonMode === 'structure'}
-                onChange={() => setComparisonMode('structure')}
-                className="sr-only"
-              />
-              <span>Structure Only</span>
-            </label>
-            <label className={`flex items-center cursor-pointer ${
-              comparisonMode === 'values' 
-                ? isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white' 
-                : isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
-            } px-3 py-1 rounded-lg`}>
-              <input 
-                type="radio" 
-                name="comparisonMode" 
-                value="values" 
-                checked={comparisonMode === 'values'}
-                onChange={() => setComparisonMode('values')}
-                className="sr-only"
-              />
-              <span>Values Only</span>
-            </label>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Comparison History</h2>
           </div>
+          
+          {history.length === 0 ? (
+            <div className={`text-center p-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>No history entries</div>
+          ) : (
+            <div className="max-h-80 overflow-y-auto">
+              {history
+                .filter(item => item.type === 'comparison')
+                .map((item, index) => (
+                  <HistoryItem 
+                    key={index}
+                    item={item}
+                    index={index}
+                    onRestore={restoreFromHistory}
+                    isDarkMode={isDarkMode}
+                  />
+                ))}
+            </div>
+          )}
         </div>
-        
-        {/* JSON Inputs */}
-        <div className="flex flex-row space-x-4">
-          <div className="flex-1">
-            <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Left JSON</h3>
-            <textarea
-              value={leftJsonInput}
-              onChange={handleLeftInputChange}
-              placeholder="Paste your first JSON here..."
-              className={`w-full h-64 p-3 border rounded-lg font-mono text-sm mb-2 outline-none transition ${
-                isDarkMode 
-                  ? 'bg-gray-800 border-gray-600 text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
-                  : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              }`}
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Right JSON</h3>
-            <textarea
-              value={rightJsonInput}
-              onChange={handleRightInputChange}
-              placeholder="Paste your second JSON here..."
-              className={`w-full h-64 p-3 border rounded-lg font-mono text-sm mb-2 outline-none transition ${
-                isDarkMode 
-                  ? 'bg-gray-800 border-gray-600 text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
-                  : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-              }`}
-            />
-          </div>
-        </div>
-        
-        <div className="flex space-x-3 mt-4">
-          <button
-            onClick={compareJson}
-            className={`px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition flex items-center ${
-              isDarkMode
-                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
+      )}
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+        {/* Left side input */}
+        <div className="flex-1">
+          <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Left JSON</h3>
+          <textarea
+            value={leftJsonInput}
+            onChange={handleLeftInputChange}
+            placeholder="Paste your first JSON here..."
+            className={`w-full h-64 p-3 border rounded-lg font-mono text-sm mb-2 outline-none transition ${
+              isDarkMode 
+                ? 'bg-gray-800 border-gray-600 text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
+                : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
             }`}
-            title="Compare (Ctrl+Shift+C)"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Compare
-          </button>
-          <button
-            onClick={handleClear}
-            className={`px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition flex items-center ${
-              isDarkMode
-                ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border border-gray-600'
-                : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Clear
-          </button>
+          />
         </div>
+        <div className="flex-1">
+          <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Right JSON</h3>
+          <textarea
+            value={rightJsonInput}
+            onChange={handleRightInputChange}
+            placeholder="Paste your second JSON here..."
+            className={`w-full h-64 p-3 border rounded-lg font-mono text-sm mb-2 outline-none transition ${
+              isDarkMode 
+                ? 'bg-gray-800 border-gray-600 text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500' 
+                : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+            }`}
+          />
+        </div>
+      </div>
+
+      <div className="flex space-x-3 mt-4">
+        <button
+          onClick={compareJson}
+          className={`px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition flex items-center ${
+            isDarkMode
+              ? 'bg-blue-600 hover:bg-blue-700 text-white'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          }`}
+          title="Compare (Ctrl+Shift+C)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Compare
+        </button>
+        <button
+          onClick={handleClear}
+          className={`px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition flex items-center ${
+            isDarkMode
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 border border-gray-600'
+              : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Clear
+        </button>
       </div>
 
       {/* Error message */}
