@@ -56,10 +56,7 @@ const MainLayout = () => {
             <div className="w-full lg:w-auto lg:h-screen overflow-hidden" style={{ minWidth: '160px' }}>
               <div className="sticky top-0 pt-4">
                 <div id="div-gpt-ad-left" className="mx-auto" style={{ width: '160px', height: '600px' }}>
-                  {/* Ad will be loaded here */}
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
-                    <span className="text-gray-400 text-sm text-center p-2">Ad Space</span>
-                  </div>
+                  {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
                 </div>
               </div>
             </div>
@@ -73,10 +70,7 @@ const MainLayout = () => {
             {showAds && (
               <div className="w-full" style={{ marginTop: '200px' }}>
                 <div id="div-gpt-ad-bottom" className="mx-auto" style={{ width: '728px', maxWidth: '100%', height: '90px' }}>
-                  {/* Ad will be loaded here */}
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
-                    <span className="text-gray-400 text-sm text-center">Ad Space</span>
-                  </div>
+                  {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
                 </div>
               </div>
             )}
@@ -87,10 +81,7 @@ const MainLayout = () => {
             <div className="w-full lg:w-auto lg:h-screen overflow-hidden" style={{ minWidth: '300px' }}>
               <div className="sticky top-0 pt-4">
                 <div id="div-gpt-ad-right" className="mx-auto" style={{ width: '300px', height: '600px' }}>
-                  {/* Ad will be loaded here */}
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100 border border-dashed border-gray-300">
-                    <span className="text-gray-400 text-sm text-center p-2">Ad Space</span>
-                  </div>
+                  {/* Leerer Container für GPT - kein Platzhalter mehr, damit GPT richtig rendern kann */}
                 </div>
               </div>
             </div>
