@@ -6,6 +6,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AdTech Toolbox</title>
     
+    <!-- TCF Mock für Staging - MUSS vor dem GPT-Skript geladen werden -->
+    <script>
+      // Überprüfen, ob wir uns auf Staging befinden
+      var isStaging = window.location.hostname.includes('staging') || 
+                      window.location.hostname === 'localhost';
+      
+      // TCF Mock für Staging erstellen
+      if (isStaging) {
+        console.log('⚠️ Creating TCF API mock for testing - EARLY INIT');
+        window.__tcfapi = function(command, version, callback) {
+          console.log(`TCF API mock called: ${command}, v${version}`);
+          if (command === 'addEventListener' || command === 'getTCData') {
+            // Simulierte Consent-Daten
+            const tcData = {
+              gdprApplies: true,
+              tcString: 'CPBZjYAPBZjYAAHABBENBDCsAP_AAH_AAAAAICtf_X__b3_j-_59f_t0eY1P9_7_v-0zjhfdt-8N2f_X_L8X42M7vF36pq4KuR4Eu3LBIQdlHOHcTUmw6okVrzPsbk2cr7NKJ7PEmnMbe2dYGH9_n93TuZKY7__9___z_v-v_v____f_7-3f3__5_3---_e_V_99zLv9____39nP___9v-_9_3________gi-ASYal5AF2ZY4Mm0aVQogRhWEhUAoAKKAYWiKwAcHBTsrAI9QQsAEJqAjAiBBiCjBgEAAgEASERASAHggEQBEAgABACpAQgAI0AQWAFgYBAAKAaFgBFAEIEhBkcFRymBAVItFBLZWIJQd7GmEIZZ4EUCj-ioQEazRAsDISFg5jgCQEvFkgeYIAAA.YAAAAAAAAAAA',
+              eventStatus: 'tcloaded',
+              purpose: {
+                consents: {
+                  1: true, // Speicherung/Zugriff auf Informationen
+                  2: true, // Personalisierung
+                  3: true, // Ad-Auswahl, Auslieferung, Reporting
+                  4: true, // Anzeigenauswahl, Auslieferung, Reporting 
+                  5: true, // Inhaltauswahl, Auslieferung, Reporting
+                  6: true, // Marktforschung
+                  7: true, // Produktentwicklung
+                  8: true, // Messung
+                  9: true, // Analytics
+                  10: true // Andere Zwecke
+                }
+              },
+              vendor: { 
+                consents: { 
+                  755: true // Google Advertising Products (Google's Vendor ID = 755)
+                }
+              }
+            };
+            
+            callback(tcData, true);
+          }
+        };
+      }
+    </script>
+    
     <!-- Einfache Custom CMP Lösung für Staging -->
     <style>
       #custom-cmp-banner {
@@ -227,44 +271,6 @@
         window.adConsent.allowAdvertising = true;
         window.adConsent.allowAnalytics = true;
         window.adConsent.consentGiven = true;
-        
-        // TCF API simulieren für Staging-Umgebung
-        if (window.location.hostname.includes('staging') || window.location.hostname === 'localhost') {
-          console.log('⚠️ Creating TCF API mock for testing');
-          // Mock-TCF-API erstellen
-          window.__tcfapi = function(command, version, callback) {
-            console.log(`TCF API mock called: ${command}, v${version}`);
-            if (command === 'addEventListener' || command === 'getTCData') {
-              // Simulierte Consent-Daten
-              const tcData = {
-                gdprApplies: true,
-                tcString: 'CPBZjYAPBZjYAAHABBENBDCsAP_AAH_AAAAAICtf_X__b3_j-_59f_t0eY1P9_7_v-0zjhfdt-8N2f_X_L8X42M7vF36pq4KuR4Eu3LBIQdlHOHcTUmw6okVrzPsbk2cr7NKJ7PEmnMbe2dYGH9_n93TuZKY7__9___z_v-v_v____f_7-3f3__5_3---_e_V_99zLv9____39nP___9v-_9_3________gi-ASYal5AF2ZY4Mm0aVQogRhWEhUAoAKKAYWiKwAcHBTsrAI9QQsAEJqAjAiBBiCjBgEAAgEASERASAHggEQBEAgABACpAQgAI0AQWAFgYBAAKAaFgBFAEIEhBkcFRymBAVItFBLZWIJQd7GmEIZZ4EUCj-ioQEazRAsDISFg5jgCQEvFkgeYIAAA.YAAAAAAAAAAA',
-                eventStatus: 'tcloaded',
-                purpose: {
-                  consents: {
-                    1: true, // Speicherung/Zugriff auf Informationen
-                    2: true, // Personalisierung
-                    3: true, // Ad-Auswahl, Auslieferung, Reporting
-                    4: true, // Anzeigenauswahl, Auslieferung, Reporting 
-                    5: true, // Inhaltauswahl, Auslieferung, Reporting
-                    6: true, // Marktforschung
-                    7: true, // Produktentwicklung
-                    8: true, // Messung
-                    9: true, // Analytics
-                    10: true // Andere Zwecke
-                  }
-                },
-                vendor: { 
-                  consents: { 
-                    755: true // Google Advertising Products (Google's Vendor ID = 755)
-                  }
-                }
-              };
-              
-              callback(tcData, true);
-            }
-          };
-        }
         
         // Event auslösen, damit andere Skripte informiert werden
         var consentEvent = new CustomEvent('adConsentChanged', { 
