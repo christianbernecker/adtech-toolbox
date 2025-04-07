@@ -17,14 +17,16 @@ function JsonToolsApp() {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-white'} transition-colors duration-200`}>
-      {/* STAGING BANNER */}
-      <div className="w-full bg-amber-600 text-white text-center py-1.5 font-semibold shadow-md fixed top-0 left-0 right-0 z-50 flex items-center justify-center">
-        <span className="mr-2">⚠️</span> 
-        STAGING ENVIRONMENT 
-        <span className="ml-2">⚠️</span>
-      </div>
+      {/* STAGING BANNER - Only show on staging domain */}
+      {window.location.hostname.includes('staging') && (
+        <div className="w-full bg-amber-600 text-white text-center py-1.5 font-semibold shadow-md fixed top-0 left-0 right-0 z-50 flex items-center justify-center">
+          <span className="mr-2">⚠️</span> 
+          STAGING ENVIRONMENT 
+          <span className="ml-2">⚠️</span>
+        </div>
+      )}
       
-      <div className="p-6 w-full max-w-6xl mx-auto" style={{ marginTop: "40px" }}>
+      <div className={`p-6 w-full max-w-6xl mx-auto ${window.location.hostname.includes('staging') ? 'mt-10' : ''}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
