@@ -17,8 +17,10 @@ function JsonToolsApp() {
   return (
     <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-white'} transition-colors duration-200`}>
       {/* STAGING BANNER */}
-      <div className="w-full bg-red-600 text-white text-center py-2 font-bold text-lg shadow-md fixed top-0 left-0 right-0 z-50">
-        ⚠️ STAGING ENVIRONMENT ⚠️
+      <div className="w-full bg-amber-600 text-white text-center py-1.5 font-semibold shadow-md fixed top-0 left-0 right-0 z-50 flex items-center justify-center">
+        <span className="mr-2">⚠️</span> 
+        STAGING ENVIRONMENT 
+        <span className="ml-2">⚠️</span>
       </div>
       
       <div className="p-6 w-full max-w-6xl mx-auto" style={{ marginTop: "40px" }}>
@@ -32,7 +34,7 @@ function JsonToolsApp() {
           </div>
           <div>
             <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-              JSON Tools - STAGING TEST 123
+              JSON Tools - Staging
             </h1>
             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Explorer & Diff Inspector</div>
           </div>
