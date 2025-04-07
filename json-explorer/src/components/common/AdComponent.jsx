@@ -9,50 +9,59 @@ import React, { useEffect, useRef } from 'react';
  * @param {Object} props.style - Optional inline styles for the ad container
  */
 const AdComponent = ({ adUnitId, className = '', style = {} }) => {
-  const adContainerRef = useRef(null);
-  const adDisplayed = useRef(false);
+  const adRef = useRef(null);
+  const isAdBlockerDetected = useRef(false);
 
   useEffect(() => {
-    // Only initialize ads if they're not already displayed
-    if (!adDisplayed.current && adContainerRef.current) {
-      // Safe access to googletag
-      if (window.googletag) {
-        window.googletag.cmd = window.googletag.cmd || [];
-        window.googletag.cmd.push(function() {
-          try {
-            window.googletag.display(adUnitId);
-            adDisplayed.current = true;
-            console.log(`Ad displayed: ${adUnitId}`);
-          } catch (err) {
-            console.error(`Error displaying ad ${adUnitId}:`, err);
-          }
-        });
-      } else {
-        // Add placeholder for when GPT is not loaded
-        console.warn(`GPT not loaded for ${adUnitId}`);
-        const placeholder = document.createElement('div');
-        placeholder.style.background = '#f0f0f0';
-        placeholder.style.display = 'flex';
-        placeholder.style.alignItems = 'center';
-        placeholder.style.justifyContent = 'center';
-        placeholder.style.width = '100%';
-        placeholder.style.height = '100%';
-        placeholder.style.minHeight = adUnitId.includes('sidebar') ? '250px' : '90px';
-        placeholder.innerText = 'Ad placeholder';
-        
-        // Clear and append placeholder
-        if (adContainerRef.current) {
-          adContainerRef.current.innerHTML = '';
-          adContainerRef.current.appendChild(placeholder);
-        }
-      }
+    // Check if GPT is defined
+    const isGptDefined = typeof window.googletag !== 'undefined';
+    
+    if (!isGptDefined) {
+      console.log('GPT not loaded, possibly blocked by ad blocker');
+      isAdBlockerDetected.current = true;
+      return;
     }
 
-    // Clean up function
-    return () => {
-      adDisplayed.current = false;
-    };
+    // Check if the ad container is created
+    const adContainer = document.getElementById(adUnitId);
+    if (!adContainer) {
+      console.log('Ad container not found:', adUnitId);
+      return;
+    }
+
+    // Check URL for no_ads parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('no_ads')) {
+      console.log('No ads mode enabled via URL parameter');
+      return;
+    }
+
+    try {
+      // Display the ad
+      if (isGptDefined) {
+        window.googletag.cmd.push(function() {
+          window.googletag.display(adUnitId);
+        });
+      }
+    } catch (error) {
+      console.error('Error displaying ad:', error);
+    }
   }, [adUnitId]);
+
+  // Check for ad blocker after a delay
+  useEffect(() => {
+    const checkAdBlocker = setTimeout(() => {
+      if (adRef.current) {
+        const adIframes = adRef.current.querySelectorAll('iframe');
+        if (adIframes.length === 0) {
+          isAdBlockerDetected.current = true;
+          adRef.current.classList.add('ad-blocked');
+        }
+      }
+    }, 2000);
+
+    return () => clearTimeout(checkAdBlocker);
+  }, []);
 
   // Default styles based on ad unit ID
   const getDefaultStyle = () => {
@@ -78,13 +87,11 @@ const AdComponent = ({ adUnitId, className = '', style = {} }) => {
 
   // Render ad container with proper ID
   return (
-    <div 
-      id={adUnitId} 
-      ref={adContainerRef} 
-      className={className}
-      style={mergedStyles}
-      data-ad-unit={adUnitId.replace('div-gpt-ad-', '')}
-    />
+    <div ref={adRef} className={`ad-container ${className}`} style={mergedStyles} data-ad-unit={adUnitId.replace('div-gpt-ad-', '')}>
+      <div id={adUnitId} className="ad-unit">
+        {/* GPT Ad will be inserted here */}
+      </div>
+    </div>
   );
 };
 
