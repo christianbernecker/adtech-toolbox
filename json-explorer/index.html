@@ -6,77 +6,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AdTech Toolbox</title>
     
-    <!-- Direktes Laden des CMP - direkt im HTML ohne Verzögerung -->
-    <script>
-      // Global CMP settings
-      window.UC_UI_SETTINGS = {
-        settingsId: 'AVmhdo98bxlHZn',
-        baseUrl: 'https://web.cmp.usercentrics.eu',
-        version: 'latest',
-        tcfEnabled: true,
-        displayOnlyForEU: false,
-        tcfRespectExcludeCountries: true,
-        // Explizit erlaubte Domänen für Usercentrics
-        allowedDomains: [
-          'adtech-toolbox.com',
-          'staging.adtech-toolbox.com',
-          'localhost'
-        ]
-      };
-      
-      // Flag ob manuelles Triggern benötigt wird
-      window.NEEDS_MANUAL_CMP_TRIGGER = (window.location.hostname.includes('staging') || window.location.hostname === 'localhost');
-      
-      // Debug-Hilfsfunktion
-      window.logCMPStatus = function(origin) {
-        console.log('[CMP Status ' + origin + ']:', 
-          'UC_UI:', window.UC_UI ? 'Available' : 'Not available',
-          'isInitialized:', window.UC_UI?.isInitialized ? (window.UC_UI.isInitialized() ? 'Yes' : 'No') : 'Function missing'
-        );
-      };
-      
-      // Force-Anzeige des CMP
-      window.forceShowCMP = function() {
-        try {
-          if (window.UC_UI) {
-            console.log('Forcing CMP to show');
-            window.UC_UI.showFirstLayer();
-            return true;
-          }
-        } catch(e) {
-          console.error('Error showing CMP:', e);
-        }
-        return false;
-      };
-    </script>
+    <!-- Einfache Custom CMP Lösung für Staging -->
+    <style>
+      #custom-cmp-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 15px;
+        font-family: Arial, sans-serif;
+        z-index: 999999;
+        display: none;
+        font-size: 14px;
+      }
+      #custom-cmp-banner .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #custom-cmp-banner p {
+        margin: 0 20px 0 0;
+        line-height: 1.5;
+      }
+      #custom-cmp-banner .buttons {
+        display: flex;
+        gap: 10px;
+      }
+      #custom-cmp-banner button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+      #custom-cmp-banner button.accept {
+        background-color: #4CAF50;
+        color: white;
+      }
+      #custom-cmp-banner button.customize {
+        background-color: transparent;
+        border: 1px solid white;
+        color: white;
+      }
+      #custom-cmp-banner button.decline {
+        background-color: #f44336;
+        color: white;
+      }
+    </style>
     
-    <!-- Inline-Loader für Usercentrics, um sicherzustellen, dass es sofort geladen wird -->
+    <!-- Usercentrics nur für Produktionsumgebung -->
     <script>
-      (function() {
+      // Überprüfen, ob wir uns auf Staging befinden
+      var isStaging = window.location.hostname.includes('staging') || 
+                      window.location.hostname === 'localhost';
+      
+      // Nur auf Produktion Usercentrics laden
+      if (!isStaging) {
         var script = document.createElement('script');
         script.id = 'usercentrics-cmp';
-        script.src = window.UC_UI_SETTINGS.baseUrl + '/ui/loader.js';
-        script.setAttribute('data-settings-id', window.UC_UI_SETTINGS.settingsId);
-        if (window.UC_UI_SETTINGS.tcfEnabled) {
-          script.setAttribute('data-tcf-enabled', '');
-        }
+        script.src = 'https://web.cmp.usercentrics.eu/ui/loader.js';
+        script.setAttribute('data-settings-id', 'AVmhdo98bxlHZn');
+        script.setAttribute('data-tcf-enabled', '');
+        document.head.appendChild(script);
         
-        script.onload = function() {
-          console.log('Usercentrics script loaded');
-          // Kurze Verzögerung für die Initialisierung
-          setTimeout(function() {
-            window.logCMPStatus('after script load');
-            
-            if (window.NEEDS_MANUAL_CMP_TRIGGER) {
-              window.forceShowCMP();
+        // Event-Handler
+        window.addEventListener('UC_UI_INITIALIZED', function() {
+          console.log('Usercentrics initialized on production');
+        });
+      }
+      
+      // Staging Cookie Banner
+      document.addEventListener('DOMContentLoaded', function() {
+        if (isStaging) {
+          // Cookie-Hilfsfunktionen
+          function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+              var date = new Date();
+              date.setTime(date.getTime() + (days*24*60*60*1000));
+              expires = "; expires=" + date.toUTCString();
             }
-          }, 500);
-        };
-        
-        // Direkt am Anfang einfügen, um sicherzustellen, dass es zuerst geladen wird
-        var firstScript = document.getElementsByTagName('script')[0];
-        firstScript.parentNode.insertBefore(script, firstScript);
-      })();
+            document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+          }
+          
+          function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for(var i=0;i < ca.length;i++) {
+              var c = ca[i];
+              while (c.charAt(0)==' ') c = c.substring(1,c.length);
+              if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+          }
+          
+          // Banner-HTML erstellen und einfügen
+          var bannerDiv = document.createElement('div');
+          bannerDiv.id = 'custom-cmp-banner';
+          bannerDiv.innerHTML = `
+            <div class="container">
+              <p>Diese Website verwendet Cookies, um Ihr Surferlebnis zu verbessern und personalisierte Inhalte anzuzeigen. <br>
+              <strong>HINWEIS: Dies ist die STAGING-Umgebung - alle Einstellungen gelten nur für Testzwecke.</strong></p>
+              <div class="buttons">
+                <button class="decline">Ablehnen</button>
+                <button class="customize">Anpassen</button>
+                <button class="accept">Alle akzeptieren</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(bannerDiv);
+          
+          // Banner anzeigen, wenn keine Zustimmung vorliegt
+          if (!getCookie('custom_cookie_consent')) {
+            setTimeout(function() { 
+              document.getElementById('custom-cmp-banner').style.display = 'block';
+            }, 800);
+          }
+          
+          // Event-Handler für Buttons
+          document.querySelector('#custom-cmp-banner button.accept').addEventListener('click', function() {
+            setCookie('custom_cookie_consent', 'all', 365);
+            document.getElementById('custom-cmp-banner').style.display = 'none';
+            console.log('All cookies accepted (staging mode)');
+          });
+          
+          document.querySelector('#custom-cmp-banner button.customize').addEventListener('click', function() {
+            alert('In der Staging-Umgebung ist diese Funktion nicht verfügbar. In der Produktionsumgebung würde hier der Usercentrics CMP Dialog angezeigt werden.');
+          });
+          
+          document.querySelector('#custom-cmp-banner button.decline').addEventListener('click', function() {
+            setCookie('custom_cookie_consent', 'necessary', 365);
+            document.getElementById('custom-cmp-banner').style.display = 'none';
+            console.log('Only necessary cookies accepted (staging mode)');
+          });
+          
+          console.log('Custom CMP banner initialized for staging environment');
+        }
+      });
     </script>
     
     <!-- Dynamic meta robots tag -->
@@ -93,30 +164,6 @@
         document.head.appendChild(metaRobots);
         console.log('Added noindex meta tag');
       }
-    </script>
-    
-    <!-- Erweiterte Event-Erfassung für CMP -->
-    <script>
-      // Standard Usercentrics Event
-      window.addEventListener('UC_UI_INITIALIZED', function() {
-        console.log('UC_UI_INITIALIZED event received');
-        window.logCMPStatus('from UC_UI_INITIALIZED event');
-      });
-      
-      // Backup für den Fall, dass das Event nicht ausgelöst wird
-      window.addEventListener('load', function() {
-        console.log('Window load complete');
-        
-        setTimeout(function() {
-          window.logCMPStatus('from window.load after 1000ms');
-          
-          // Letzter Versuch, das CMP anzuzeigen, wenn nötig
-          if (window.NEEDS_MANUAL_CMP_TRIGGER && !window.UC_UI?.isInitialized?.()) {
-            console.log('Last attempt to show CMP');
-            window.forceShowCMP();
-          }
-        }, 1000);
-      });
     </script>
     
     <!-- Prebid.js -->
