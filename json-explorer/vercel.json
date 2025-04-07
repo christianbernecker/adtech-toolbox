@@ -4,13 +4,6 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/json-explorer/test", "destination": "/json-explorer-test.html" },
-    { "source": "/json-explorer/test-redirect", "destination": "/test-redirect.html" },
-    { "source": "/production-test", "destination": "/production-test.html" },
-    { "source": "/test-direct", "destination": "/production-test-direct.html" },
-    { "source": "/testing/combined", "destination": "/testing/combined-test.html" },
-    { "source": "/testing/ads", "destination": "/testing/ads-test.html" },
-    { "source": "/testing", "destination": "/testing/index.html" },
     { "source": "/legal/imprint", "destination": "/legal/imprint.html" },
     { "source": "/legal/privacy", "destination": "/legal/privacy.html" },
     { "source": "/", "destination": "/index.html" },
