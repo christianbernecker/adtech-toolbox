@@ -1,5 +1,5 @@
 {
-  "name": "adtech-toolbox",
+  "name": "adtech-toolbox-staging",
   "version": 2,
   "buildCommand": "cd json-explorer && npm install && npm run build",
   "outputDirectory": "json-explorer/dist",
@@ -13,8 +13,8 @@
   },
   "git": {
     "deploymentEnabled": {
-      "main": true,
-      "staging": false
+      "staging": true,
+      "main": false
     }
   }
 } 
