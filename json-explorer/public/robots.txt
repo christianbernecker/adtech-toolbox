@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Indexierung der Staging-Umgebung verhindern
+User-agent: *
+Disallow: /
+Host: staging.adtech-toolbox.com
+
+# Keine Indexierung von URLs mit no_ads Parameter
+User-agent: *
+Disallow: /*?*no_ads*
+
+# Keine Indexierung von Archiven
+User-agent: *
+Disallow: /*.zip$
+Disallow: /*.tar$
+Disallow: /*.gz$
+
+# Keine Indexierung von admin Bereichen
+User-agent: *
+Disallow: /admin/
+Disallow: /wp-admin/
+
+Sitemap: https://www.adtech-toolbox.com/sitemap.xml 

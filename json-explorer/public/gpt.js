@@ -1,24 +1,58 @@
 // Google Publisher Tag integration
 window.googletag = window.googletag || { cmd: [] };
 
-// Define ad sizes
-const adSize = [[728, 90], [300, 250], [300, 600], [320, 50]];
+// Define ad sizes for each position
+const adSizes = {
+  left: [[160, 600], [120, 600]],  // Skyscraper formats
+  right: [[300, 600], [300, 250]], // Large rectangle and medium rectangle
+  bottom: [[728, 90], [970, 90], [320, 50], [970, 250]] // Leaderboard, mobile banner, large leaderboard
+};
 
-// Define ad units
-const adUnits = [{
-  code: 'div-gpt-ad-1',
-  mediaTypes: {
-    banner: {
-      sizes: adSize,
-    }
+// Define ad units for each position
+const adUnits = [
+  {
+    code: 'div-gpt-ad-left',
+    mediaTypes: {
+      banner: {
+        sizes: adSizes.left
+      }
+    },
+    bids: [{
+      bidder: 'appnexus',
+      params: {
+        placementId: 13144370 // Your AppNexus placement ID
+      }
+    }]
   },
-  bids: [{
-    bidder: 'appnexus',
-    params: {
-      placementId: 13144370 // Your AppNexus placement ID
-    }
-  }]
-}];
+  {
+    code: 'div-gpt-ad-right',
+    mediaTypes: {
+      banner: {
+        sizes: adSizes.right
+      }
+    },
+    bids: [{
+      bidder: 'appnexus',
+      params: {
+        placementId: 13144370 // Your AppNexus placement ID
+      }
+    }]
+  },
+  {
+    code: 'div-gpt-ad-bottom',
+    mediaTypes: {
+      banner: {
+        sizes: adSizes.bottom
+      }
+    },
+    bids: [{
+      bidder: 'appnexus',
+      params: {
+        placementId: 13144370 // Your AppNexus placement ID
+      }
+    }]
+  }
+];
 
 // Configure Prebid
 window.pbjs = window.pbjs || {};
@@ -30,7 +64,11 @@ let usercentricsChecked = false;
 // Variable to store whether personalized ads are enabled
 let personalizedAdsEnabled = true;
 
-// Debug function
+// Check URL for no_ads parameter
+const urlParams = new URLSearchParams(window.location.search);
+const noAds = urlParams.has('no_ads');
+
+// Debug function for Usercentrics
 function logUsercentricsStatus() {
   console.log('UC_UI available:', !!window.UC_UI);
   if (window.UC_UI) {
@@ -46,174 +84,206 @@ function logUsercentricsStatus() {
   }
 }
 
-// Check Usercentrics on page load
-window.addEventListener('load', function() {
-  setTimeout(logUsercentricsStatus, 1000);
-  setTimeout(logUsercentricsStatus, 3000);
-});
+// Don't initialize ads if no_ads parameter is present
+if (noAds) {
+  console.log('No ads mode enabled by URL parameter');
+} else {
+  // Check Usercentrics on page load
+  window.addEventListener('load', function() {
+    setTimeout(logUsercentricsStatus, 1000);
+    setTimeout(logUsercentricsStatus, 3000);
+  });
 
-window.googletag.cmd.push(function() {
-  console.log('GPT initialization started');
-  // Check if Usercentrics is available
-  if (window.UC_UI && !usercentricsChecked) {
-    console.log('Usercentrics detected in GPT');
-    // Disable initial loading of ads
-    googletag.pubads().disableInitialLoad();
-
-    // If Usercentrics has already loaded and user made choices
-    if (window.UC_UI.isInitialized()) {
-      console.log('Usercentrics already initialized');
-      const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
-        service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
-      );
+  // Initialize GPT
+  window.googletag.cmd.push(function() {
+    console.log('GPT initialization started');
+    
+    // Define ad slots for each position
+    googletag.defineSlot('/19968336/adtech-toolbox-left', adSizes.left, 'div-gpt-ad-left')
+      .addService(googletag.pubads())
+      .setTargeting('position', ['left']);
       
-      // Set personalized ads based on consent
-      personalizedAdsEnabled = hasMarketingConsent;
-      googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
-      usercentricsChecked = true;
-      console.log('Set personalized ads:', personalizedAdsEnabled);
-    }
-
-    // Listen for Usercentrics events
-    window.addEventListener('UC_UI_INITIALIZED', function() {
-      console.log('UC_UI_INITIALIZED event received');
-      const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
-        service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
-      );
+    googletag.defineSlot('/19968336/adtech-toolbox-right', adSizes.right, 'div-gpt-ad-right')
+      .addService(googletag.pubads())
+      .setTargeting('position', ['right']);
       
-      // Set personalized ads based on consent
-      personalizedAdsEnabled = hasMarketingConsent;
-      googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
-      usercentricsChecked = true;
-      console.log('Set personalized ads after init:', personalizedAdsEnabled);
-      
-      // Refresh ads
-      if (window.pbjs && window.pbjs.setTargetingForGPTAsync) {
-        window.pbjs.setTargetingForGPTAsync();
-        googletag.pubads().refresh();
-      }
-    });
+    googletag.defineSlot('/19968336/adtech-toolbox-bottom', adSizes.bottom, 'div-gpt-ad-bottom')
+      .addService(googletag.pubads())
+      .setTargeting('position', ['bottom']);
+    
+    // Set common targeting parameters
+    googletag.pubads().setTargeting('tool', ['json-explorer']);
+    googletag.pubads().setTargeting('site', ['adtech-toolbox']);
+    
+    // Add environment targeting
+    const isStaging = window.location.hostname.includes('staging');
+    googletag.pubads().setTargeting('env', [isStaging ? 'staging' : 'production']);
+    
+    // Check if Usercentrics is available
+    if (window.UC_UI && !usercentricsChecked) {
+      console.log('Usercentrics detected in GPT');
+      // Disable initial loading of ads
+      googletag.pubads().disableInitialLoad();
 
-    // Update consent when user updates
-    window.addEventListener('UC_UI_CMP_EVENT', function(event) {
-      console.log('UC_UI_CMP_EVENT received:', event.detail.type);
-      if (event.detail.type === 'ACCEPT_ALL' || event.detail.type === 'DENY_ALL' || event.detail.type === 'SAVE') {
+      // If Usercentrics has already loaded and user made choices
+      if (window.UC_UI.isInitialized()) {
+        console.log('Usercentrics already initialized');
         const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
           service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
         );
         
-        // Update personalized ads setting
+        // Set personalized ads based on consent
         personalizedAdsEnabled = hasMarketingConsent;
         googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
-        console.log('Updated personalized ads after user choice:', personalizedAdsEnabled);
+        usercentricsChecked = true;
+        console.log('Set personalized ads:', personalizedAdsEnabled);
+      }
+
+      // Listen for Usercentrics events
+      window.addEventListener('UC_UI_INITIALIZED', function() {
+        console.log('UC_UI_INITIALIZED event received');
+        const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
+          service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
+        );
+        
+        // Set personalized ads based on consent
+        personalizedAdsEnabled = hasMarketingConsent;
+        googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
+        usercentricsChecked = true;
+        console.log('Set personalized ads after init:', personalizedAdsEnabled);
         
         // Refresh ads
         if (window.pbjs && window.pbjs.setTargetingForGPTAsync) {
           window.pbjs.setTargetingForGPTAsync();
           googletag.pubads().refresh();
         }
-      }
-    });
-  } else {
-    console.log('Usercentrics not detected, falling back to TCF');
-    // Fallback to TCF API if Usercentrics not available
-    try {
-      // Check if the TCF API exists
-      if (typeof window.__tcfapi === 'function') {
-        console.log('TCF API available');
-        window.__tcfapi('addEventListener', 2, function(tcData, success) {
-          console.log('TCF callback:', success, tcData?.eventStatus);
-          if (success && tcData.eventStatus === 'tcloaded' || tcData.eventStatus === 'useractioncomplete') {
-            // Check for consent for personalized ads (Purpose 1 - Store and/or access information on a device)
-            const hasConsent = tcData.purpose && tcData.purpose.consents && tcData.purpose.consents[1];
-            personalizedAdsEnabled = hasConsent;
-            googletag.pubads().setRequestNonPersonalizedAds(hasConsent ? 0 : 1);
-            console.log('TCF consent for personalization:', hasConsent);
-          }
-        });
-      } else {
-        console.log('TCF API not available');
-      }
-    } catch (e) {
-      console.error('Error in TCF API integration:', e);
-    }
-  }
-
-  // Define slot
-  googletag.defineSlot('/19968336/header-bid-tag-0', adSize, 'div-gpt-ad-1')
-    .addService(googletag.pubads());
-
-  // Configure ad settings
-  googletag.pubads().enableSingleRequest();
-  googletag.pubads().collapseEmptyDivs();
-  googletag.enableServices();
-  console.log('GPT services enabled');
-});
-
-// Function to request and display ads
-function refreshAds() {
-  googletag.cmd.push(function() {
-    googletag.pubads().refresh();
-  });
-}
-
-// Function to create GPT ad slots after Prebid auction
-function initAdServer() {
-  if (window.pbjs && pbjs.initAdserverSet) return;
-  
-  // Set flag to avoid duplicate calls
-  if (window.pbjs) {
-    pbjs.initAdserverSet = true;
-  }
-  
-  googletag.cmd.push(function() {
-    // Set targeting from Prebid
-    if (window.pbjs) {
-      pbjs.que.push(function() {
-        pbjs.setTargetingForGPTAsync();
-        console.log('Prebid targeting set for GPT');
       });
+
+      // Update consent when user updates
+      window.addEventListener('UC_UI_CMP_EVENT', function(event) {
+        console.log('UC_UI_CMP_EVENT received:', event.detail.type);
+        if (event.detail.type === 'ACCEPT_ALL' || event.detail.type === 'DENY_ALL' || event.detail.type === 'SAVE') {
+          const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
+            service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
+          );
+          
+          // Update personalized ads setting
+          personalizedAdsEnabled = hasMarketingConsent;
+          googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
+          console.log('Updated personalized ads after user choice:', personalizedAdsEnabled);
+          
+          // Refresh ads
+          if (window.pbjs && window.pbjs.setTargetingForGPTAsync) {
+            window.pbjs.setTargetingForGPTAsync();
+            googletag.pubads().refresh();
+          }
+        }
+      });
+    } else {
+      console.log('Usercentrics not detected, falling back to TCF');
+      // Fallback to TCF API if Usercentrics not available
+      try {
+        // Check if the TCF API exists
+        if (typeof window.__tcfapi === 'function') {
+          console.log('TCF API available');
+          window.__tcfapi('addEventListener', 2, function(tcData, success) {
+            console.log('TCF callback:', success, tcData?.eventStatus);
+            if (success && (tcData.eventStatus === 'tcloaded' || tcData.eventStatus === 'useractioncomplete')) {
+              // Check for consent for personalized ads (Purpose 1 - Store and/or access information on a device)
+              const hasConsent = tcData.purpose && tcData.purpose.consents && tcData.purpose.consents[1];
+              personalizedAdsEnabled = hasConsent;
+              googletag.pubads().setRequestNonPersonalizedAds(hasConsent ? 0 : 1);
+              console.log('TCF consent for personalization:', hasConsent);
+            }
+          });
+        } else {
+          console.log('TCF API not available');
+        }
+      } catch (e) {
+        console.error('Error in TCF API integration:', e);
+      }
+    }
+
+    // Configure ad settings
+    googletag.pubads().enableSingleRequest();
+    googletag.pubads().collapseEmptyDivs();
+    
+    // Enable lazy loading
+    googletag.pubads().enableLazyLoad({
+      fetchMarginPercent: 100,  // Fetch ad when it's 1 viewport away
+      renderMarginPercent: 50,   // Render ad when it's 0.5 viewport away
+      mobileScaling: 2.0         // Double the above values on mobile
+    });
+    
+    googletag.enableServices();
+    console.log('GPT services enabled');
+  });
+
+  // Function to request and display ads
+  function refreshAds() {
+    googletag.cmd.push(function() {
+      googletag.pubads().refresh();
+    });
+  }
+
+  // Function to create GPT ad slots after Prebid auction
+  function initAdServer() {
+    if (window.pbjs && pbjs.initAdserverSet) return;
+    
+    // Set flag to avoid duplicate calls
+    if (window.pbjs) {
+      pbjs.initAdserverSet = true;
     }
     
-    // Request initial ads
-    googletag.pubads().refresh();
-  });
-}
-
-// Set timeout for Prebid auction
-setTimeout(function() {
-  initAdServer();
-}, 2000); // 2 second timeout (optimizing from 3 to 2 seconds for better page speed)
-
-// Add support for ad blockers
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    const adContainers = document.querySelectorAll('[id^="div-gpt-ad-"]');
-    
-    adContainers.forEach(function(container) {
-      // Check if the ad container is empty after a delay
-      if (container.innerHTML.trim() === '' || 
-          container.querySelector('iframe') === null) {
-        
-        // Replace with a message for users with ad blockers
-        const placeholder = document.createElement('div');
-        placeholder.style.width = '100%';
-        placeholder.style.height = '100%';
-        placeholder.style.display = 'flex';
-        placeholder.style.alignItems = 'center';
-        placeholder.style.justifyContent = 'center';
-        placeholder.style.textAlign = 'center';
-        placeholder.style.backgroundColor = '#f9f9f9';
-        placeholder.style.border = '1px dashed #ccc';
-        placeholder.style.padding = '20px';
-        placeholder.style.boxSizing = 'border-box';
-        placeholder.style.fontSize = '14px';
-        placeholder.style.color = '#666';
-        
-        placeholder.innerHTML = 'This tool is supported by ads.<br>Please consider disabling your ad blocker.';
-        
-        container.appendChild(placeholder);
+    googletag.cmd.push(function() {
+      // Set targeting from Prebid
+      if (window.pbjs) {
+        pbjs.que.push(function() {
+          pbjs.setTargetingForGPTAsync();
+          console.log('Prebid targeting set for GPT');
+        });
       }
+      
+      // Request initial ads
+      googletag.pubads().refresh();
     });
-  }, 3000);
-}); 
+  }
+
+  // Set timeout for Prebid auction
+  setTimeout(function() {
+    initAdServer();
+  }, 2000); // 2 second timeout (optimizing from 3 to 2 seconds for better page speed)
+
+  // Add support for ad blockers
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      const adContainers = document.querySelectorAll('[id^="div-gpt-ad-"]');
+      
+      adContainers.forEach(function(container) {
+        // Check if the ad container is empty after a delay
+        if (container.innerHTML.trim() === '' || 
+            container.querySelector('iframe') === null) {
+          
+          // Replace with a message for users with ad blockers
+          const placeholder = document.createElement('div');
+          placeholder.style.width = '100%';
+          placeholder.style.height = '100%';
+          placeholder.style.display = 'flex';
+          placeholder.style.alignItems = 'center';
+          placeholder.style.justifyContent = 'center';
+          placeholder.style.textAlign = 'center';
+          placeholder.style.backgroundColor = '#f9f9f9';
+          placeholder.style.border = '1px dashed #ccc';
+          placeholder.style.padding = '20px';
+          placeholder.style.boxSizing = 'border-box';
+          placeholder.style.fontSize = '14px';
+          placeholder.style.color = '#666';
+          
+          placeholder.innerHTML = 'This tool is supported by ads.<br>Please consider disabling your ad blocker.';
+          
+          container.appendChild(placeholder);
+        }
+      });
+    }, 3000);
+  });
+} 
