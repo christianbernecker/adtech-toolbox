@@ -4,6 +4,7 @@ import JsonVastExplorer from './JsonVastExplorer/JsonVastExplorer';
 import JsonDiffInspector from './JsonDiffInspector/JsonDiffInspector';
 import useKeyboardShortcuts from '../hooks/useKeyboardShortcuts';
 import usePersistedHistory from '../hooks/usePersistedHistory';
+import Footer from './common/Footer';
 
 function JsonToolsApp() {
   // Shared state between tools
@@ -125,6 +126,9 @@ function JsonToolsApp() {
           setShowHistory={setShowHistory}
         />
       )}
+      
+      {/* Footer */}
+      <Footer isDarkMode={isDarkMode} />
       </div>
     </div>
   );
