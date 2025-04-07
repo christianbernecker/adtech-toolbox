@@ -3,8 +3,8 @@
   "version": 2,
   "buildCommand": "cd json-explorer && npm install && npm run build",
   "outputDirectory": "json-explorer/dist",
-  "routes": [
-    { "src": "/(.*)", "dest": "/json-explorer/dist/index.html" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "github": {
     "silent": false
