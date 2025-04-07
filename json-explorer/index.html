@@ -57,7 +57,92 @@
         background-color: #f44336;
         color: white;
       }
+      
+      /* Ad Slot Debug Styles */
+      .ad-debug-info {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(255,0,0,0.1);
+        color: red;
+        font-size: 10px;
+        padding: 2px;
+        z-index: 999;
+        pointer-events: none;
+      }
+      .ad-container {
+        position: relative;
+      }
     </style>
+    
+    <!-- Debug-Skript für Werbe-Slots -->
+    <script>
+      // Debug-Funktion für Ad-Slots
+      function debugAdSlots() {
+        console.log('🔍 Starting ad slots debugging');
+        
+        // Prüfe ob googletag geladen wurde
+        if (!window.googletag) {
+          console.error('❌ googletag is not loaded');
+          return;
+        }
+        
+        console.log('✅ googletag object exists');
+        
+        // Prüfe ob die cmd-Queue existiert
+        if (!window.googletag.cmd) {
+          console.error('❌ googletag.cmd is missing');
+          return;
+        }
+        
+        console.log('✅ googletag.cmd exists, length:', window.googletag.cmd.length);
+        
+        // Prüfe ob pubads vorhanden ist
+        window.googletag.cmd.push(function() {
+          try {
+            const pubads = googletag.pubads();
+            console.log('✅ pubads service available');
+            
+            // Prüfe ad slots
+            const slots = googletag.pubads().getSlots();
+            console.log('✅ Ad slots defined:', slots.length);
+            
+            slots.forEach(function(slot) {
+              console.log('📦 Slot:', slot.getSlotElementId(), 
+                          'Path:', slot.getAdUnitPath(),
+                          'Sizes:', slot.getSizes());
+              
+              // Finde und markiere die Ad-Container
+              const slotElement = document.getElementById(slot.getSlotElementId());
+              if (slotElement) {
+                console.log('✅ Slot DOM element found:', slot.getSlotElementId());
+                
+                // Container mit Debug-Info versehen
+                const parent = slotElement.parentElement;
+                if (parent) {
+                  parent.classList.add('ad-container');
+                  const debugInfo = document.createElement('div');
+                  debugInfo.className = 'ad-debug-info';
+                  debugInfo.textContent = slot.getAdUnitPath();
+                  parent.appendChild(debugInfo);
+                }
+              } else {
+                console.error('❌ Slot DOM element missing:', slot.getSlotElementId());
+              }
+            });
+            
+            // Prüfe Targeting-Parameter
+            const targeting = pubads.getTargetingKeys();
+            console.log('📊 Targeting parameters:', targeting);
+            targeting.forEach(function(key) {
+              console.log('  - ' + key + ':', pubads.getTargeting(key));
+            });
+          } catch (e) {
+            console.error('❌ Error during GPT debug:', e);
+          }
+        });
+      }
+    </script>
     
     <!-- Globale Werbe-Consent-Variable und Funktionen -->
     <script>
@@ -71,7 +156,7 @@
       
       // Funktion zum Aktivieren der Werbung
       window.activateAdvertising = function() {
-        console.log('Activating advertising components');
+        console.log('🟢 Activating advertising components');
         window.adConsent.allowAdvertising = true;
         window.adConsent.allowAnalytics = true;
         window.adConsent.consentGiven = true;
@@ -83,27 +168,53 @@
         window.dispatchEvent(consentEvent);
         
         // Werbe-Slots initialisieren oder neu laden
-        if (window.googletag && googletag.pubads) {
-          console.log('Refreshing ad slots');
-          googletag.cmd.push(function() {
-            googletag.pubads().refresh();
-          });
+        if (window.googletag) {
+          console.log('🟢 googletag exists, activating ads');
+          if (googletag.pubads) {
+            googletag.cmd.push(function() {
+              console.log('🟢 Refreshing ad slots');
+              googletag.pubads().setRequestNonPersonalizedAds(0); // Aktiviere personalisierte Anzeigen
+              try {
+                var slots = googletag.pubads().getSlots();
+                console.log('🟢 Found ' + slots.length + ' ad slots to refresh');
+                
+                // Debug-Informationen für Ad-Slots anzeigen
+                slots.forEach(function(slot) {
+                  console.log('🟢 Will refresh slot: ' + slot.getSlotElementId() + ' (' + slot.getAdUnitPath() + ')');
+                });
+                
+                // Refresh all slots
+                googletag.pubads().refresh();
+                
+                // Aktiviere Debug für Ad-Slots nach kurzer Verzögerung
+                setTimeout(debugAdSlots, 1000);
+              } catch (e) {
+                console.error('❌ Error refreshing ad slots:', e);
+              }
+            });
+          } else {
+            console.error('❌ googletag.pubads not available');
+          }
+        } else {
+          console.error('❌ googletag not available for ad refresh');
         }
         
         // Falls Prebid.js verwendet wird
         if (window.pbjs) {
-          console.log('Activating Prebid.js');
+          console.log('🟢 Activating Prebid.js');
           pbjs.setConfig({
             consentManagement: {
               gdpr: { cmpApi: 'static', consentData: { getTCData: { tcString: '', gdprApplies: false } } }
             }
           });
+        } else {
+          console.log('ℹ️ Prebid.js not available');
         }
       };
       
       // Funktion zum Deaktivieren der Werbung
       window.deactivateAdvertising = function() {
-        console.log('Deactivating advertising components');
+        console.log('🔴 Deactivating advertising components');
         window.adConsent.allowAdvertising = false;
         window.adConsent.allowAnalytics = false;
         window.adConsent.consentGiven = true;
@@ -113,7 +224,42 @@
           detail: { consent: window.adConsent } 
         });
         window.dispatchEvent(consentEvent);
+        
+        // Falls GPT geladen ist, nicht-personalisierte Anzeigen setzen
+        if (window.googletag && googletag.pubads) {
+          googletag.cmd.push(function() {
+            googletag.pubads().setRequestNonPersonalizedAds(1); // Non-personalisierte Anzeigen
+            console.log('🔴 Set non-personalized ads mode');
+          });
+        }
       };
+      
+      // Prüfen und aktivieren von Werbe-Komponenten nach Page-Load
+      window.addEventListener('load', function() {
+        console.log('🔍 Page loaded, checking ad components');
+        
+        // GPT-Status prüfen
+        if (window.googletag) {
+          console.log('✅ GPT is available');
+          
+          // Überprüfe ob wir bereits Consent haben
+          var consentCookie = document.cookie.split(';').some(function(item) {
+            return item.trim().indexOf('custom_cookie_consent=all') === 0;
+          });
+          
+          if (consentCookie) {
+            console.log('✅ Consent cookie found, activating ads');
+            window.activateAdvertising();
+          } else {
+            console.log('ℹ️ No consent cookie found');
+          }
+          
+          // Debug für Ad-Slots ausführen
+          setTimeout(debugAdSlots, 2000);
+        } else {
+          console.error('❌ GPT not available on page load');
+        }
+      });
     </script>
     
     <!-- Usercentrics nur für Produktionsumgebung -->
@@ -149,6 +295,7 @@
               expires = "; expires=" + date.toUTCString();
             }
             document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+            console.log('🍪 Cookie set:', name, value);
           }
           
           function getCookie(name) {
@@ -180,16 +327,26 @@
           
           // Prüfen, ob Consent bereits gegeben wurde
           var existingConsent = getCookie('custom_cookie_consent');
+          console.log('🍪 Existing consent cookie:', existingConsent);
+          
           if (existingConsent) {
             if (existingConsent === 'all') {
               // Bestehender Consent für alle Cookies
-              window.activateAdvertising();
+              console.log('✅ Existing full consent found, activating ads');
+              // Verzögerung für die Aktivierung, um sicherzustellen, dass GPT geladen ist
+              setTimeout(function() {
+                window.activateAdvertising();
+                // Aktiviere Debug für Ad-Slots
+                setTimeout(debugAdSlots, 1000);
+              }, 1000);
             } else {
               // Nur essenzielle Cookies erlaubt
+              console.log('ℹ️ Only necessary cookies allowed');
               window.deactivateAdvertising();
             }
           } else {
             // Kein Consent, Banner anzeigen
+            console.log('ℹ️ No consent found, showing banner');
             setTimeout(function() { 
               document.getElementById('custom-cmp-banner').style.display = 'block';
             }, 800);
@@ -197,17 +354,21 @@
           
           // Event-Handler für Buttons
           document.querySelector('#custom-cmp-banner button.accept').addEventListener('click', function() {
+            console.log('👍 User clicked ACCEPT');
             setCookie('custom_cookie_consent', 'all', 365);
             document.getElementById('custom-cmp-banner').style.display = 'none';
-            console.log('All cookies accepted (staging mode)');
             
             // Werbung aktivieren
             window.activateAdvertising();
             
-            // Seite neu laden, um sicherzustellen, dass Anzeigen korrekt geladen werden
+            // Zeige Debug-Informationen vor dem Reload
+            debugAdSlots();
+            
+            // Seite mit Verzögerung neu laden
+            console.log('🔄 Will reload page in 5 seconds for ads to fully initialize');
             setTimeout(function() {
               window.location.reload();
-            }, 300);
+            }, 5000);
           });
           
           document.querySelector('#custom-cmp-banner button.customize').addEventListener('click', function() {
@@ -215,20 +376,20 @@
           });
           
           document.querySelector('#custom-cmp-banner button.decline').addEventListener('click', function() {
+            console.log('👎 User clicked DECLINE');
             setCookie('custom_cookie_consent', 'necessary', 365);
             document.getElementById('custom-cmp-banner').style.display = 'none';
-            console.log('Only necessary cookies accepted (staging mode)');
             
             // Werbung deaktivieren
             window.deactivateAdvertising();
             
-            // Seite neu laden, um sicherzustellen, dass keine Anzeigen geladen werden
+            // Seite mit Verzögerung neu laden
             setTimeout(function() {
               window.location.reload();
             }, 300);
           });
           
-          console.log('Custom CMP banner initialized for staging environment');
+          console.log('✅ Custom CMP banner initialized for staging environment');
         }
       });
     </script>
