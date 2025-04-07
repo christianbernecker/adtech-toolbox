@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
 import ThemeToggle from '../common/ThemeToggle';
 import '../../styles/MainLayout.css';
 
@@ -134,14 +134,14 @@ const MainLayout = ({ forceTestMode }) => {
               &copy; {new Date().getFullYear()} AdTech Toolbox
             </div>
             <div className="flex space-x-4">
-              <a href="/legal/imprint.html" target="_blank" rel="noopener noreferrer" 
+              <Link to="/legal/imprint"
                 className={`text-sm ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'}`}>
                 Imprint
-              </a>
-              <a href="/legal/privacy.html" target="_blank" rel="noopener noreferrer" 
+              </Link>
+              <Link to="/legal/privacy"
                 className={`text-sm ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-900'}`}>
                 Privacy Policy
-              </a>
+              </Link>
             </div>
           </div>
         </footer>

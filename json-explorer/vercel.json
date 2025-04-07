@@ -8,6 +8,8 @@
     { "source": "/json-explorer/test-redirect", "destination": "/test-redirect.html" },
     { "source": "/production-test", "destination": "/production-test.html" },
     { "source": "/test-direct", "destination": "/production-test-direct.html" },
+    { "source": "/legal/imprint", "destination": "/legal/imprint.html" },
+    { "source": "/legal/privacy", "destination": "/legal/privacy.html" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/json-explorer", "destination": "/index.html" },
     { "source": "/json-explorer/:path*", "destination": "/index.html" }
@@ -16,7 +18,7 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "s-maxage=1, stale-while-revalidate" }
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
     }
   ]
