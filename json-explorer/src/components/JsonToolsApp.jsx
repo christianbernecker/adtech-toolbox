@@ -30,7 +30,7 @@ function JsonToolsApp() {
               AdTech Toolbox
             </h1>
             {import.meta.env.VITE_ENVIRONMENT === 'staging' && (
-              <span className="px-2 py-1 text-sm font-semibold rounded-lg bg-yellow-500 text-yellow-950">
+              <span className="ml-2 px-3 py-1 text-sm font-bold rounded-lg bg-amber-500 text-amber-950 animate-pulse">
                 STAGING
               </span>
             )}
