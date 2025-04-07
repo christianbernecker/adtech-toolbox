@@ -1,106 +1,115 @@
 // Google Publisher Tag integration
 window.googletag = window.googletag || { cmd: [] };
 
-// GPT configuration
-googletag.cmd.push(function() {
-  // Define ad slots for responsive design
-  
-  // Sidebar ad - responsive for sidebar sizes  
-  googletag
-    .defineSlot('/21802911858/adtech-toolbox-sidebar', [[300, 250], [300, 600]], 'div-gpt-ad-sidebar')
-    .addService(googletag.pubads())
-    .setTargeting('position', ['sidebar'])
-    .setTargeting('page', ['json_tools']);
-    
-  // Bottom banner - responsive for desktop sizes
-  googletag
-    .defineSlot('/21802911858/adtech-toolbox-bottom', [[728, 90], [970, 90], [970, 250]], 'div-gpt-ad-bottom-banner')
-    .addService(googletag.pubads())
-    .setTargeting('position', ['bottom'])
-    .setTargeting('page', ['json_tools']);
+// Define ad sizes
+const adSize = [[728, 90], [300, 250], [300, 600], [320, 50]];
 
-  // Set common targeting parameters
-  googletag.pubads().setTargeting('tool', ['json-explorer']);
-  googletag.pubads().setTargeting('site', ['adtech-toolbox']);
-  
-  // Add language targeting
-  googletag.pubads().setTargeting('lang', ['en']);
-  
-  // Device targeting
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  googletag.pubads().setTargeting('device', [isMobile ? 'mobile' : 'desktop']);
-  
-  // Pass page URL parameters
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const campaign = urlParams.get('utm_campaign');
-    const source = urlParams.get('utm_source');
-    
-    if (campaign) {
-      googletag.pubads().setTargeting('utm_campaign', [campaign]);
+// Define ad units
+const adUnits = [{
+  code: 'div-gpt-ad-1',
+  mediaTypes: {
+    banner: {
+      sizes: adSize,
     }
-    if (source) {
-      googletag.pubads().setTargeting('utm_source', [source]);
+  },
+  bids: [{
+    bidder: 'appnexus',
+    params: {
+      placementId: 13144370 // Your AppNexus placement ID
     }
-  } catch (e) {
-    console.warn('Error processing URL parameters:', e);
-  }
+  }]
+}];
 
-  // Enable SRA (Single Request Architecture)
-  googletag.pubads().enableSingleRequest();
-  
-  // Enable lazy loading
-  googletag.pubads().enableLazyLoad({
-    fetchMarginPercent: 100,
-    renderMarginPercent: 50,
-    mobileScaling: 2.0
-  });
-  
-  // GDPR compliance
-  if (typeof window.Cookiebot !== 'undefined') {
+// Configure Prebid
+window.pbjs = window.pbjs || {};
+window.pbjs.que = window.pbjs.que || [];
+
+// Flag to track if Usercentrics has been checked
+let usercentricsChecked = false;
+
+// Variable to store whether personalized ads are enabled
+let personalizedAdsEnabled = true;
+
+window.googletag.cmd.push(function() {
+  // Check if Usercentrics is available
+  if (window.UC_UI && !usercentricsChecked) {
+    // Disable initial loading of ads
     googletag.pubads().disableInitialLoad();
-    
-    // Wenn Cookiebot bereits geladen ist
-    if (window.Cookiebot.consented) {
-      const hasAdvertisingConsent = window.Cookiebot.consent.marketing;
-      googletag.pubads().setRequestNonPersonalizedAds(hasAdvertisingConsent ? 0 : 1);
-      googletag.pubads().refresh();
-    } else {
-      // Warte auf Cookiebot Consent-Event
-      window.addEventListener('CookiebotOnAccept', function() {
-        const hasAdvertisingConsent = window.Cookiebot.consent.marketing;
-        googletag.pubads().setRequestNonPersonalizedAds(hasAdvertisingConsent ? 0 : 1);
-        googletag.pubads().refresh();
-      });
+
+    // If Usercentrics has already loaded and user made choices
+    if (window.UC_UI.isInitialized()) {
+      const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
+        service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
+      );
       
-      window.addEventListener('CookiebotOnDecline', function() {
-        googletag.pubads().setRequestNonPersonalizedAds(1); // Non-personalized ads
-        googletag.pubads().refresh();
-      });
+      // Set personalized ads based on consent
+      personalizedAdsEnabled = hasMarketingConsent;
+      googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
+      usercentricsChecked = true;
     }
-  } else if (typeof __tcfapi === 'function') {
-    googletag.pubads().disableInitialLoad();
-    
-    // Set personalized ads based on user consent
-    __tcfapi('addEventListener', 2, function(tcData, success) {
-      if (success && tcData.eventStatus === 'tcloaded') {
-        // Check if user granted consent for personalized ads
-        if (tcData.purpose.consents[1]) {
-          // Purpose 1 is personalized ads
-          googletag.pubads().setRequestNonPersonalizedAds(0); // 0 = personalized
-        } else {
-          googletag.pubads().setRequestNonPersonalizedAds(1); // 1 = non-personalized
-        }
-        
+
+    // Listen for Usercentrics events
+    window.addEventListener('UC_UI_INITIALIZED', function() {
+      const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
+        service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
+      );
+      
+      // Set personalized ads based on consent
+      personalizedAdsEnabled = hasMarketingConsent;
+      googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
+      usercentricsChecked = true;
+      
+      // Refresh ads
+      if (window.pbjs && window.pbjs.setTargetingForGPTAsync) {
+        window.pbjs.setTargetingForGPTAsync();
         googletag.pubads().refresh();
-        
-        // Remove event listener
-        __tcfapi('removeEventListener', 2, function() {}, tcData.listenerId);
       }
     });
+
+    // Update consent when user updates
+    window.addEventListener('UC_UI_CMP_EVENT', function(event) {
+      if (event.detail.type === 'ACCEPT_ALL' || event.detail.type === 'DENY_ALL' || event.detail.type === 'SAVE') {
+        const hasMarketingConsent = window.UC_UI.getServicesBaseInfo().some(
+          service => service.id === 'BJz7qNsdj-7' && service.consent.status === true
+        );
+        
+        // Update personalized ads setting
+        personalizedAdsEnabled = hasMarketingConsent;
+        googletag.pubads().setRequestNonPersonalizedAds(hasMarketingConsent ? 0 : 1);
+        
+        // Refresh ads
+        if (window.pbjs && window.pbjs.setTargetingForGPTAsync) {
+          window.pbjs.setTargetingForGPTAsync();
+          googletag.pubads().refresh();
+        }
+      }
+    });
+  } else {
+    // Fallback to TCF API if Usercentrics not available
+    try {
+      // Check if the TCF API exists
+      if (typeof window.__tcfapi === 'function') {
+        window.__tcfapi('addEventListener', 2, function(tcData, success) {
+          if (success && tcData.eventStatus === 'tcloaded' || tcData.eventStatus === 'useractioncomplete') {
+            // Check for consent for personalized ads (Purpose 1 - Store and/or access information on a device)
+            const hasConsent = tcData.purpose && tcData.purpose.consents && tcData.purpose.consents[1];
+            personalizedAdsEnabled = hasConsent;
+            googletag.pubads().setRequestNonPersonalizedAds(hasConsent ? 0 : 1);
+          }
+        });
+      }
+    } catch (e) {
+      console.error('Error in TCF API integration:', e);
+    }
   }
 
-  // Enable services
+  // Define slot
+  googletag.defineSlot('/19968336/header-bid-tag-0', adSize, 'div-gpt-ad-1')
+    .addService(googletag.pubads());
+
+  // Configure ad settings
+  googletag.pubads().enableSingleRequest();
+  googletag.pubads().collapseEmptyDivs();
   googletag.enableServices();
 });
 
