@@ -27,12 +27,8 @@ function JsonToolsApp() {
           </div>
           <div>
             <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-              AdTech Toolbox
+              AdTech Toolbox <span className="text-sm font-bold px-3 py-1 bg-red-500 text-white rounded-lg animate-pulse">STAGING</span>
             </h1>
-            {/* Always show the badge for now */}
-            <span className="ml-2 px-3 py-1 text-sm font-bold rounded-lg bg-amber-500 text-amber-950 animate-pulse">
-              STAGING
-            </span>
             <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Explorer & Diff Inspector</div>
           </div>
         </div>
