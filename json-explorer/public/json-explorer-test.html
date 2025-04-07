@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Tools - Test-Umgebung</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .header {
+            background-color: #fff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test-badge {
+            background-color: #ffc107;
+            color: #212529;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+        .ad-left, .ad-right {
+            width: 160px;
+            padding: 1rem;
+        }
+        .ad-left {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: calc(100vh - 60px);
+        }
+        .ad-right {
+            background: linear-gradient(135deg, #ea4335, #fbbc05);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: calc(100vh - 60px);
+        }
+        .content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-right: 1rem;
+        }
+        .tab.active {
+            border-color: #4285f4;
+            font-weight: bold;
+            color: #4285f4;
+        }
+        .textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #dee2e6;
+            color: #212529;
+        }
+        .ad-bottom {
+            width: 100%;
+            height: 90px;
+            background: linear-gradient(90deg, #fbbc05, #ea4335);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-top: 200px;
+        }
+        .footer {
+            background-color: #fff;
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer a {
+            color: #6c757d;
+            text-decoration: none;
+            margin-left: 1rem;
+        }
+        .footer a:hover {
+            color: #212529;
+        }
+        
+        /* Dark Mode */
+        .dark-mode {
+            background-color: #212529;
+            color: #f8f9fa;
+        }
+        .dark-mode .header, .dark-mode .footer {
+            background-color: #343a40;
+            border-color: #495057;
+        }
+        .dark-mode .textarea {
+            background-color: #343a40;
+            color: #f8f9fa;
+            border-color: #495057;
+        }
+        .dark-mode .btn-outline {
+            border-color: #495057;
+            color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div></div>
+            <div class="test-badge">TEST MODE</div>
+        </header>
+        
+        <div class="main-content">
+            <!-- Left Ad Banner -->
+            <div class="ad-left">
+                <div style="font-weight: bold; margin-bottom: 0.75rem;">TEST AD - LEFT</div>
+                <div style="font-size: 0.75rem;">160x600</div>
+                <div style="font-size: 0.625rem; position: absolute; bottom: 1rem;">/6355419/Travel/Europe/France/Paris</div>
+            </div>
+            
+            <!-- Main Content Area -->
+            <div class="content">
+                <h1 style="margin-bottom: 1.5rem;">JSON Tools</h1>
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('vast')">JSON VAST Explorer</div>
+                    <div class="tab" onclick="switchTab('diff')">JSON Diff Inspector</div>
+                </div>
+                
+                <div id="vast-panel" class="panel">
+                    <p style="margin-bottom: 1rem;">
+                        <strong>Keyboard Shortcuts:</strong> Ctrl+Shift+F (Format), Ctrl+Shift+L (Clear), Ctrl+Shift+H (History)
+                    </p>
+                    <textarea id="json-input" class="textarea" placeholder="Paste your unformatted JSON here..."></textarea>
+                    <div>
+                        <button id="format-btn" class="btn">Format</button>
+                        <button id="clear-btn" class="btn btn-outline">Clear</button>
+                    </div>
+                </div>
+                
+                <div id="diff-panel" class="panel" style="display: none;">
+                    <p>JSON Diff Inspector would be here in the full application.</p>
+                </div>
+                
+                <!-- Bottom Ad Banner -->
+                <div class="ad-bottom">
+                    <div>
+                        <div style="font-weight: bold;">TEST AD - BOTTOM</div>
+                        <div style="font-size: 0.625rem;">728x90</div>
+                        <div style="font-size: 0.5rem; position: absolute; bottom: 0.25rem;">/6355419/Travel/Europe/France/Paris</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Ad Banner -->
+            <div class="ad-right">
+                <div style="font-weight: bold; margin-bottom: 0.75rem;">TEST AD - RIGHT</div>
+                <div style="font-size: 0.75rem;">300x600</div>
+                <div style="font-size: 0.625rem; position: absolute; bottom: 1rem;">/6355419/Travel/Europe/France/Paris</div>
+            </div>
+        </div>
+        
+        <footer class="footer">
+            <div>&copy; 2023 AdTech Toolbox</div>
+            <div>
+                <a href="/legal/imprint.html" target="_blank">Imprint</a>
+                <a href="/legal/privacy.html" target="_blank">Privacy Policy</a>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Einfache Tab-Funktion
+        function switchTab(tabName) {
+            // Tabs aktualisieren
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.tab[onclick*="${tabName}"]`).classList.add('active');
+            
+            // Panels aktualisieren
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            document.getElementById(`${tabName}-panel`).style.display = 'block';
+        }
+        
+        // JSON Formatieren
+        document.getElementById('format-btn').addEventListener('click', function() {
+            const input = document.getElementById('json-input').value;
+            try {
+                const json = JSON.parse(input);
+                document.getElementById('json-input').value = JSON.stringify(json, null, 2);
+            } catch (e) {
+                alert('Invalid JSON: ' + e.message);
+            }
+        });
+        
+        // Löschen-Button
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            document.getElementById('json-input').value = '';
+        });
+        
+        // Prüfen, ob Auth-Parameter vorhanden ist
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('auth') || urlParams.get('auth') !== 'adtech2023') {
+            // Weiterleitung zur Auth-Seite, wenn kein Auth-Parameter
+            window.location.href = '/json-explorer/test-redirect.html';
+        }
+        
+        // Dark Mode Toggle
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Shift+D für Dark Mode Toggle
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+                document.body.classList.toggle('dark-mode');
+            }
+        });
+    </script>
+</body>
+</html> 

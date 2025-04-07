@@ -1,8 +1,8 @@
 {
   "rewrites": [
+    { "source": "/json-explorer/test", "destination": "/json-explorer-test.html" },
+    { "source": "/json-explorer/test-redirect", "destination": "/test-redirect.html" },
     { "source": "/json-explorer", "destination": "/index.html" },
-    { "source": "/json-explorer/test", "destination": "/index.html" },
-    { "source": "/json-explorer/test/:path*", "destination": "/index.html" },
     { "source": "/json-explorer/:path*", "destination": "/index.html" }
   ],
   "headers": [
