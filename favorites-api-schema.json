@@ -1,0 +1,147 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Favoriten API",
+    "version": "1.0.0",
+    "description": "API zur Verwaltung der Favoriten-Tabelle in Supabase."
+  },
+  "servers": [
+    {
+      "url": "https://ylfqyzomgfuetgihkdcy.supabase.co/rest/v1"
+    }
+  ],
+  "paths": {
+    "/favorites": {
+      "get": {
+        "summary": "Alle Favoriten abrufen",
+        "operationId": "get_favorites",
+        "parameters": [
+          {
+            "name": "recipe_hash",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Optionaler Filter nach Rezept-Hash"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste der Favoriten"
+          }
+        },
+        "security": [
+          { "api_key": [] }
+        ]
+      },
+      "post": {
+        "summary": "Neues Rezept speichern",
+        "operationId": "post_favorites",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "ingredients", "steps"],
+                "properties": {
+                  "title": { "type": "string" },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                  "portions": { "type": "integer" },
+                  "total_time": { "type": "string" },
+                  "devices": { "type": "array", "items": { "type": "string" } },
+                  "ingredients": { "type": "array", "items": { "type": "string" } },
+                  "steps": { "type": "array", "items": { "type": "string" } },
+                  "macros_per_100g": { "type": "object" },
+                  "notes": { "type": "string" },
+                  "image_url": { "type": "string" },
+                  "recipe_hash": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rezept erfolgreich gespeichert"
+          }
+        },
+        "security": [
+          { "api_key": [] }
+        ]
+      },
+      "patch": {
+        "summary": "Rezept aktualisieren",
+        "operationId": "patch_favorites",
+        "parameters": [
+          {
+            "name": "recipe_hash",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Hash des zu aktualisierenden Rezepts"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                  "portions": { "type": "integer" },
+                  "total_time": { "type": "string" },
+                  "devices": { "type": "array", "items": { "type": "string" } },
+                  "ingredients": { "type": "array", "items": { "type": "string" } },
+                  "steps": { "type": "array", "items": { "type": "string" } },
+                  "macros_per_100g": { "type": "object" },
+                  "notes": { "type": "string" },
+                  "image_url": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rezept erfolgreich aktualisiert"
+          }
+        },
+        "security": [
+          { "api_key": [] }
+        ]
+      },
+      "delete": {
+        "summary": "Rezept löschen",
+        "operationId": "delete_favorites",
+        "parameters": [
+          {
+            "name": "recipe_hash",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Hash des zu löschenden Rezepts"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rezept erfolgreich gelöscht"
+          }
+        },
+        "security": [
+          { "api_key": [] }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "apikey"
+      }
+    }
+  }
+}
